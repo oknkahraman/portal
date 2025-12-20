@@ -173,9 +173,9 @@ async function handleRoute(request, { params }) {
       const requestId = uuidv4();
 
       await query(
-        `INSERT INTO requests (id, user_id, request_number, category, sub_category, project_description, delivery_to_address, delivery_address, total_items)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-        [requestId, user.id, requestNumber, body.category, body.sub_category, body.project_description, body.delivery_to_address || false, body.delivery_address, body.items?.length || 0]
+        `INSERT INTO requests (id, user_id, request_number, category, sub_category, project_description, delivery_to_address, delivery_address, total_items, requested_delivery_date)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+        [requestId, user.id, requestNumber, body.category, body.sub_category, body.project_description, body.delivery_to_address || false, body.delivery_address, body.items?.length || 0, body.requested_delivery_date || null]
       );
 
       // Add items
