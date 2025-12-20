@@ -286,7 +286,26 @@ async function handleRoute(request, { params }) {
           ORDER BY c.created_at ASC
         `, [item.id]);
         item.comments = commentsResult.rows;
+
+        // Get quality documents for each item
+        const qualityDocsResult = await query(`
+          SELECT qd.*, p.full_name as uploaded_by_name
+          FROM quality_documents qd
+          JOIN profiles p ON qd.uploaded_by = p.id
+          WHERE qd.request_item_id = $1
+          ORDER BY qd.created_at DESC
+        `, [item.id]);
+        item.quality_documents = qualityDocsResult.rows;
       }
+
+      // Get general quality documents (request level)
+      const generalQualityDocsResult = await query(`
+        SELECT qd.*, p.full_name as uploaded_by_name
+        FROM quality_documents qd
+        JOIN profiles p ON qd.uploaded_by = p.id
+        WHERE qd.request_id = $1 AND qd.request_item_id IS NULL
+        ORDER BY qd.created_at DESC
+      `, [requestId]);
 
       // Mark messages as read
       await query(`UPDATE messages SET is_read = true WHERE request_id = $1 AND sender_id != $2`, [requestId, user.id]);
@@ -295,7 +314,8 @@ async function handleRoute(request, { params }) {
         request: req,
         items: itemsResult.rows,
         quote: quoteResult.rows[0] || null,
-        messages: messagesResult.rows
+        messages: messagesResult.rows,
+        quality_documents: generalQualityDocsResult.rows
       }));
     }
 
