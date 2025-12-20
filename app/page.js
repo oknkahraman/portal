@@ -47,11 +47,58 @@ import {
   Inbox,
   CheckSquare,
   XSquare,
-  Award
+  Award,
+  ShoppingCart,
+  Factory,
+  ClipboardCheck,
+  PackageCheck,
+  Download,
+  FileDown
 } from 'lucide-react';
 
 // Logo URL
 const LOGO_URL = 'https://customer-assets.emergentagent.com/job_4c42cef6-e9b3-41e4-a1e3-e1e53a26a709/artifacts/89h3a84e_ANES%20%281%29.png';
+
+// Sipariş Aşamaları
+const ORDER_STAGES = {
+  hammadde: {
+    label: 'Hammadde Alımı',
+    icon: ShoppingCart,
+    color: 'text-amber-600',
+    bgColor: 'bg-amber-100',
+    borderColor: 'border-amber-300'
+  },
+  imalat: {
+    label: 'İmalat Devam Ediyor',
+    icon: Factory,
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-100',
+    borderColor: 'border-blue-300'
+  },
+  kalite_kontrol: {
+    label: 'Kalite Kontrol',
+    icon: ClipboardCheck,
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-100',
+    borderColor: 'border-purple-300'
+  },
+  sevkiyat: {
+    label: 'Sevkiyat Sürecinde',
+    icon: Truck,
+    color: 'text-orange-600',
+    bgColor: 'bg-orange-100',
+    borderColor: 'border-orange-300'
+  },
+  teslim_edildi: {
+    label: 'Teslim Edildi',
+    icon: PackageCheck,
+    color: 'text-emerald-600',
+    bgColor: 'bg-emerald-100',
+    borderColor: 'border-emerald-300'
+  }
+};
+
+const ORDER_STAGE_LIST = ['hammadde', 'imalat', 'kalite_kontrol', 'sevkiyat', 'teslim_edildi'];
 
 // Categories
 const CATEGORIES = {
