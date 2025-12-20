@@ -337,6 +337,113 @@ async function handleRoute(request, { params }) {
       return handleCORS(NextResponse.json({ success: true }));
     }
 
+    // Update order stage (admin only) - Sipariş Aşaması Güncelleme
+    if (route.match(/^\/requests\/[^/]+\/stage$/) && method === 'PUT') {
+      const user = await authenticateRequest(request);
+      if (!user || user.role !== 'admin') {
+        return handleCORS(NextResponse.json({ error: 'Unauthorized' }, { status: 403 }));
+      }
+
+      const requestId = pathSegments[1];
+      const body = await request.json();
+
+      // Valid stages
+      const validStages = ['hammadde', 'imalat', 'kalite_kontrol', 'sevkiyat', 'teslim_edildi'];
+      if (!validStages.includes(body.stage)) {
+        return handleCORS(NextResponse.json({ error: 'Geçersiz aşama' }, { status: 400 }));
+      }
+
+      // Update stage
+      await query(
+        'UPDATE requests SET order_stage = $1, last_activity_at = NOW(), updated_at = NOW() WHERE id = $2',
+        [body.stage, requestId]
+      );
+
+      // If delivered, update status to completed
+      if (body.stage === 'teslim_edildi') {
+        await query('UPDATE requests SET status = $1 WHERE id = $2', ['completed', requestId]);
+      }
+
+      return handleCORS(NextResponse.json({ success: true }));
+    }
+
+    // ==================== QUALITY DOCUMENTS ROUTES ====================
+
+    // Upload quality document (admin only)
+    if (route === '/quality-documents' && method === 'POST') {
+      const user = await authenticateRequest(request);
+      if (!user || user.role !== 'admin') {
+        return handleCORS(NextResponse.json({ error: 'Unauthorized' }, { status: 403 }));
+      }
+
+      const formData = await request.formData();
+      const file = formData.get('file');
+      const requestId = formData.get('request_id');
+      const requestItemId = formData.get('request_item_id'); // optional
+
+      if (!file || !requestId) {
+        return handleCORS(NextResponse.json({ error: 'Dosya ve talep ID gerekli' }, { status: 400 }));
+      }
+
+      // Only allow PDF files
+      if (!file.name.toLowerCase().endsWith('.pdf')) {
+        return handleCORS(NextResponse.json({ error: 'Sadece PDF dosyaları yüklenebilir' }, { status: 400 }));
+      }
+
+      const MAX_SIZE = 50 * 1024 * 1024; // 50MB for quality docs
+      if (file.size > MAX_SIZE) {
+        return handleCORS(NextResponse.json({ error: 'Dosya boyutu 50 MB\'ı aşamaz' }, { status: 400 }));
+      }
+
+      const fileName = `qc_${uuidv4()}.pdf`;
+      const filePath = path.join(UPLOAD_DIR, fileName);
+      
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      fs.writeFileSync(filePath, buffer);
+
+      // Save to database
+      const docId = uuidv4();
+      await query(
+        `INSERT INTO quality_documents (id, request_id, request_item_id, file_url, file_name, file_size, uploaded_by)
+         VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+        [docId, requestId, requestItemId || null, `/api/files/${fileName}`, file.name, file.size, user.id]
+      );
+
+      return handleCORS(NextResponse.json({
+        success: true,
+        document_id: docId,
+        file_url: `/api/files/${fileName}`,
+        file_name: file.name
+      }));
+    }
+
+    // Delete quality document (admin only)
+    if (route.match(/^\/quality-documents\/[^/]+$/) && method === 'DELETE') {
+      const user = await authenticateRequest(request);
+      if (!user || user.role !== 'admin') {
+        return handleCORS(NextResponse.json({ error: 'Unauthorized' }, { status: 403 }));
+      }
+
+      const docId = pathSegments[1];
+      
+      // Get file URL before deleting
+      const docResult = await query('SELECT file_url FROM quality_documents WHERE id = $1', [docId]);
+      if (docResult.rows.length > 0) {
+        const fileUrl = docResult.rows[0].file_url;
+        const fileName = fileUrl.split('/').pop();
+        const filePath = path.join(UPLOAD_DIR, fileName);
+        
+        // Delete file
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      }
+
+      await query('DELETE FROM quality_documents WHERE id = $1', [docId]);
+      return handleCORS(NextResponse.json({ success: true }));
+    }
+
     // ==================== QUOTES ROUTES ====================
 
     // Create quote (admin only)
