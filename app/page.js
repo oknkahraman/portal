@@ -12,12 +12,11 @@ import { Badge } from '@/components/ui/badge';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { 
-  Factory, 
   FileText, 
   Plus, 
   Send, 
@@ -34,7 +33,6 @@ import {
   ChevronLeft,
   Upload,
   Trash2,
-  Edit,
   Eye,
   RefreshCw,
   Bell,
@@ -42,80 +40,96 @@ import {
   X,
   Building2,
   FileCheck,
-  Layers
+  Layers,
+  Calendar,
+  DollarSign,
+  BarChart3,
+  Inbox,
+  CheckSquare,
+  XSquare,
+  Award
 } from 'lucide-react';
+
+// Logo URL
+const LOGO_URL = 'https://customer-assets.emergentagent.com/job_4c42cef6-e9b3-41e4-a1e3-e1e53a26a709/artifacts/89h3a84e_ANES%20%281%29.png';
 
 // Categories
 const CATEGORIES = {
   talasli: {
-    name: 'Talasli Imalat',
+    name: 'Talaşlı İmalat',
     icon: '🔧',
+    color: 'from-blue-500 to-blue-600',
     subCategories: [
       { value: 'cnc_torna', label: 'CNC Torna' },
-      { value: 'dik_islem', label: 'Dik Islem (Freze)' },
+      { value: 'dik_islem', label: 'Dik İşlem (Freze)' },
       { value: 'borwerk', label: 'Borwerk' },
-      { value: 'oneriye_acik', label: 'Emin Degilim / Teknik Resme Gore Belirlensin' },
+      { value: 'oneriye_acik', label: 'Emin Değilim / Teknik Resme Göre Belirlensin' },
     ],
   },
   kaynak: {
-    name: 'Kaynakli Imalat',
+    name: 'Kaynaklı İmalat',
     icon: '⚡',
+    color: 'from-orange-500 to-orange-600',
     subCategories: [
-      { value: 'mig_mag', label: 'Gazalti Kaynagi (MIG/MAG)' },
-      { value: 'tig_argon', label: 'TIG/Argon Kaynagi' },
-      { value: 'elektrot', label: 'Elektrot Kaynagi' },
+      { value: 'mig_mag', label: 'Gazaltı Kaynağı (MIG/MAG)' },
+      { value: 'tig_argon', label: 'TIG/Argon Kaynağı' },
+      { value: 'elektrot', label: 'Elektrot Kaynağı' },
       { value: 'lazer', label: 'Lazer Kaynak' },
-      { value: 'robot', label: 'Robot Kaynagi' },
-      { value: 'oneriye_acik', label: 'Oneriye Acigim / Teknik Resme Gore Belirlensin' },
+      { value: 'robot', label: 'Robot Kaynağı' },
+      { value: 'oneriye_acik', label: 'Öneriye Açığım / Teknik Resme Göre Belirlensin' },
     ],
   },
   sac: {
-    name: 'Sac Isleme (Lazer/Bukum)',
+    name: 'Sac İşleme (Lazer/Büküm)',
     icon: '📐',
+    color: 'from-green-500 to-green-600',
     subCategories: [
       { value: 'lazer_kesim', label: 'Lazer Kesim' },
-      { value: 'cnc_abkant', label: 'CNC Abkant (Bukum)' },
-      { value: 'oneriye_acik', label: 'Oneriye Acigim' },
+      { value: 'cnc_abkant', label: 'CNC Abkant (Büküm)' },
+      { value: 'oneriye_acik', label: 'Öneriye Açığım' },
     ],
   },
   '3d': {
-    name: 'Eklemeli Imalat (3D Baski)',
+    name: 'Eklemeli İmalat (3D Baskı)',
     icon: '🖨️',
+    color: 'from-purple-500 to-purple-600',
     subCategories: [
       { value: 'pla_abs', label: 'PLA/ABS (Hobi/Prototip)' },
-      { value: 'petg_nylon', label: 'PETG/Nylon (Fonksiyonel Parca)' },
+      { value: 'petg_nylon', label: 'PETG/Nylon (Fonksiyonel Parça)' },
       { value: 'metal', label: 'Metal (SLS/DMLS)' },
-      { value: 'oneriye_acik', label: 'Oneriye Acigim' },
+      { value: 'oneriye_acik', label: 'Öneriye Açığım' },
     ],
   },
   komple: {
-    name: 'Komple Proje (Montajli)',
+    name: 'Komple Proje (Montajlı)',
     icon: '🏭',
+    color: 'from-indigo-500 to-indigo-600',
     subCategories: [],
   },
   kaplama: {
     name: 'Kaplama/Boya',
     icon: '🎨',
+    color: 'from-pink-500 to-pink-600',
     subCategories: [
       { value: 'galvaniz', label: 'Galvaniz Kaplama' },
       { value: 'elektrolitik', label: 'Elektrolitik Kaplama' },
       { value: 'toz_boya', label: 'Toz Boya' },
-      { value: 'sivi_boya', label: 'Sivi Boya' },
-      { value: 'oneriye_acik', label: 'Oneriye Acigim' },
+      { value: 'sivi_boya', label: 'Sıvı Boya' },
+      { value: 'oneriye_acik', label: 'Öneriye Açığım' },
     ],
   },
 };
 
 const MATERIALS = [
-  'ST37', 'ST52', '304L', '316L', 'Aluminyum 6061', 'Aluminyum 7075', 
-  'Pirinc', 'Bakir', 'Bronz', 'Paslanmaz Celik', 'Dokme Demir',
-  'C45', '42CrMo4', '16MnCr5', 'Titanyum', 'Nikel Alasim'
+  'ST37', 'ST52', '304L', '316L', 'Alüminyum 6061', 'Alüminyum 7075', 
+  'Pirinç', 'Bakır', 'Bronz', 'Paslanmaz Çelik', 'Dökme Demir',
+  'C45', '42CrMo4', '16MnCr5', 'Titanyum', 'Nikel Alaşım'
 ];
 
 const STATUS_COLORS = {
-  pending: 'bg-yellow-500',
+  pending: 'bg-amber-500',
   quoted: 'bg-blue-500',
-  approved: 'bg-green-500',
+  approved: 'bg-emerald-500',
   rejected: 'bg-red-500',
   completed: 'bg-purple-500',
   cancelled: 'bg-gray-500',
@@ -124,10 +138,10 @@ const STATUS_COLORS = {
 const STATUS_LABELS = {
   pending: 'Teklif Bekliyor',
   quoted: 'Teklif Geldi',
-  approved: 'Onaylandi',
+  approved: 'Onaylandı',
   rejected: 'Reddedildi',
-  completed: 'Tamamlandi',
-  cancelled: 'Iptal Edildi',
+  completed: 'Tamamlandı',
+  cancelled: 'İptal Edildi',
 };
 
 // API helper
@@ -155,7 +169,7 @@ async function api(endpoint, options = {}) {
   const data = await response.json();
   
   if (!response.ok) {
-    throw new Error(data.error || 'Bir hata olustu');
+    throw new Error(data.error || 'Bir hata oluştu');
   }
   
   return data;
@@ -187,7 +201,7 @@ function AuthForm({ onSuccess }) {
         : formData;
       
       const data = await api(endpoint, { method: 'POST', body });
-      toast.success(isLogin ? 'Giris basarili!' : 'Kayit basarili!');
+      toast.success(isLogin ? 'Giriş başarılı!' : 'Kayıt başarılı!');
       onSuccess(data.token, data.user);
     } catch (error) {
       toast.error(error.message);
@@ -197,108 +211,133 @@ function AuthForm({ onSuccess }) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%239C92AC\" fill-opacity=\"0.05\"%3E%3Cpath d=\"M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-40"></div>
+      
+      <Card className="w-full max-w-md relative z-10 shadow-2xl border-0 bg-white/95 backdrop-blur">
+        <CardHeader className="text-center pb-2">
           <div className="flex justify-center mb-4">
-            <Factory className="w-12 h-12 text-primary" />
+            <img src={LOGO_URL} alt="MANES Logo" className="h-20 w-auto" />
           </div>
-          <CardTitle className="text-2xl">Imalat Portal</CardTitle>
-          <CardDescription>
-            {isLogin ? 'Hesabiniza giris yapin' : 'Yeni hesap olusturun'}
+          <CardTitle className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+            İmalat Yönetim Portalı
+          </CardTitle>
+          <CardDescription className="text-base">
+            {isLogin ? 'Hesabınıza giriş yapın' : 'Yeni hesap oluşturun'}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
               <>
-                <div>
-                  <Label>Ad Soyad</Label>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Ad Soyad</Label>
                   <Input 
                     value={formData.full_name}
                     onChange={(e) => setFormData({...formData, full_name: e.target.value})}
                     required
                     minLength={3}
+                    className="h-11"
+                    placeholder="Adınız Soyadınız"
                   />
                 </div>
-                <div>
-                  <Label>Sirket Unvani</Label>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Şirket Ünvanı</Label>
                   <Input 
                     value={formData.company_name}
                     onChange={(e) => setFormData({...formData, company_name: e.target.value})}
                     required
+                    className="h-11"
+                    placeholder="ABC Makina Ltd. Şti."
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Vergi Dairesi</Label>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Vergi Dairesi</Label>
                     <Input 
                       value={formData.tax_office}
                       onChange={(e) => setFormData({...formData, tax_office: e.target.value})}
                       required
+                      className="h-11"
+                      placeholder="Ankara VD"
                     />
                   </div>
-                  <div>
-                    <Label>Vergi No / TCKN</Label>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Vergi No / TCKN</Label>
                     <Input 
                       value={formData.tax_number}
                       onChange={(e) => setFormData({...formData, tax_number: e.target.value})}
                       required
                       minLength={10}
                       maxLength={11}
+                      className="h-11"
+                      placeholder="1234567890"
                     />
                   </div>
                 </div>
-                <div>
-                  <Label>Adres</Label>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Adres</Label>
                   <Textarea 
                     value={formData.address}
                     onChange={(e) => setFormData({...formData, address: e.target.value})}
                     required
                     minLength={10}
+                    placeholder="Açık adresinizi yazın..."
+                    className="resize-none"
+                    rows={2}
                   />
                 </div>
-                <div>
-                  <Label>Telefon</Label>
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">Telefon</Label>
                   <Input 
                     value={formData.phone}
                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
                     placeholder="5321234567"
                     required
+                    className="h-11"
                   />
                 </div>
               </>
             )}
-            <div>
-              <Label>Email</Label>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Email</Label>
               <Input 
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
                 required
+                className="h-11"
+                placeholder="ornek@sirket.com"
               />
             </div>
-            <div>
-              <Label>Sifre</Label>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Şifre</Label>
               <Input 
                 type="password"
                 value={formData.password}
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
                 required
                 minLength={8}
+                className="h-11"
+                placeholder="••••••••"
               />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Yukleniyor...' : (isLogin ? 'Giris Yap' : 'Kayit Ol')}
+            <Button 
+              type="submit" 
+              className="w-full h-12 text-base font-semibold bg-gradient-to-r from-slate-800 to-slate-700 hover:from-slate-700 hover:to-slate-600 transition-all duration-300" 
+              disabled={loading}
+            >
+              {loading ? 'Yükleniyor...' : (isLogin ? 'Giriş Yap' : 'Kayıt Ol')}
             </Button>
           </form>
-          <div className="mt-4 text-center">
+          <div className="mt-6 text-center">
             <button 
               type="button"
-              className="text-sm text-primary hover:underline"
+              className="text-sm text-slate-600 hover:text-slate-800 font-medium transition-colors"
               onClick={() => setIsLogin(!isLogin)}
             >
-              {isLogin ? 'Hesabiniz yok mu? Kayit olun' : 'Zaten hesabiniz var mi? Giris yapin'}
+              {isLogin ? 'Hesabınız yok mu? Kayıt olun' : 'Zaten hesabınız var mı? Giriş yapın'}
             </button>
           </div>
         </CardContent>
@@ -321,6 +360,7 @@ function RequestWizard({ onClose, onSuccess, template }) {
     use_profile_address: true,
     save_as_template: false,
     template_name: '',
+    requested_delivery_date: '', // YENİ - İstenen termin tarihi
   });
   const [currentItem, setCurrentItem] = useState({
     item_name: '',
@@ -342,23 +382,23 @@ function RequestWizard({ onClose, onSuccess, template }) {
     if (!file) return;
     
     if (file.size > 104857600) {
-      toast.error('Dosya boyutu 100 MB\'i asamaz');
+      toast.error('Dosya boyutu 100 MB\'ı aşamaz');
       return;
     }
 
     const allowedExtensions = ['.step', '.stp', '.dxf', '.pdf', '.rar', '.zip'];
     const ext = '.' + file.name.split('.').pop().toLowerCase();
     if (!allowedExtensions.includes(ext)) {
-      toast.error('Gecersiz dosya formati');
+      toast.error('Geçersiz dosya formatı');
       return;
     }
 
     setUploading(true);
     try {
-      const formData = new FormData();
-      formData.append('file', file);
+      const formDataUpload = new FormData();
+      formDataUpload.append('file', file);
       
-      const data = await api('/upload', { method: 'POST', body: formData });
+      const data = await api('/upload', { method: 'POST', body: formDataUpload });
       setCurrentItem({
         ...currentItem,
         file: file,
@@ -366,7 +406,7 @@ function RequestWizard({ onClose, onSuccess, template }) {
         file_name: data.file_name,
         file_size: data.file_size,
       });
-      toast.success('Dosya yuklendi');
+      toast.success('Dosya yüklendi');
     } catch (error) {
       toast.error(error.message);
     } finally {
@@ -376,7 +416,7 @@ function RequestWizard({ onClose, onSuccess, template }) {
 
   const addItem = () => {
     if (!currentItem.item_name || !currentItem.material || !currentItem.file_url) {
-      toast.error('Lutfen tum zorunlu alanlari doldurun');
+      toast.error('Lütfen tüm zorunlu alanları doldurun');
       return;
     }
     
@@ -394,7 +434,7 @@ function RequestWizard({ onClose, onSuccess, template }) {
       file_name: '',
       file_size: 0,
     });
-    toast.success('Parca eklendi');
+    toast.success('Parça eklendi');
   };
 
   const removeItem = (index) => {
@@ -418,10 +458,11 @@ function RequestWizard({ onClose, onSuccess, template }) {
         items: formData.items,
         save_as_template: formData.save_as_template,
         template_name: formData.template_name,
+        requested_delivery_date: formData.requested_delivery_date, // YENİ
       };
 
       const data = await api('/requests', { method: 'POST', body: requestData });
-      toast.success(`Talebiniz olusturuldu: ${data.request_number}`);
+      toast.success(`Talebiniz oluşturuldu: ${data.request_number}`);
       onSuccess();
     } catch (error) {
       toast.error(error.message);
@@ -441,7 +482,7 @@ function RequestWizard({ onClose, onSuccess, template }) {
         return formData.sub_category !== '' || CATEGORIES[formData.category]?.subCategories.length === 0;
       case 3:
         if (isKompleProje) {
-          return true; // Teslimat adimi
+          return true;
         }
         return formData.items.length > 0;
       case 4:
@@ -457,47 +498,56 @@ function RequestWizard({ onClose, onSuccess, template }) {
     switch (step) {
       case 1:
         return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Imalat Kategorisi Secin</h3>
-            <RadioGroup
-              value={formData.category}
-              onValueChange={(value) => setFormData({...formData, category: value, sub_category: ''})}
-              className="grid grid-cols-1 md:grid-cols-2 gap-4"
-            >
+          <div className="space-y-6">
+            <div className="text-center">
+              <h3 className="text-xl font-bold text-slate-800">İmalat Kategorisi Seçin</h3>
+              <p className="text-slate-500 mt-1">Projeniz için uygun kategoriyi seçin</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {Object.entries(CATEGORIES).map(([key, cat]) => (
-                <div key={key} className="flex items-center space-x-2">
-                  <RadioGroupItem value={key} id={key} />
-                  <Label htmlFor={key} className="flex items-center gap-2 cursor-pointer text-base">
-                    <span className="text-2xl">{cat.icon}</span>
-                    {cat.name}
-                  </Label>
+                <div
+                  key={key}
+                  onClick={() => setFormData({...formData, category: key, sub_category: ''})}
+                  className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+                    formData.category === key 
+                      ? 'border-slate-800 bg-slate-50 shadow-lg' 
+                      : 'border-slate-200 hover:border-slate-400 hover:shadow'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="text-3xl">{cat.icon}</span>
+                    <span className="font-semibold text-slate-700">{cat.name}</span>
+                  </div>
                 </div>
               ))}
-            </RadioGroup>
+            </div>
           </div>
         );
 
       case 2:
         if (isKompleProje) {
-          // Komple proje - aciklama ve dosya
           return (
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Proje Detaylari</h3>
-              <div>
-                <Label>Proje Aciklamasi (min 50 karakter)</Label>
+            <div className="space-y-6">
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-slate-800">Proje Detayları</h3>
+                <p className="text-slate-500 mt-1">Projenizi detaylı olarak açıklayın</p>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Proje Açıklaması (min 50 karakter)</Label>
                 <Textarea
                   value={formData.project_description}
                   onChange={(e) => setFormData({...formData, project_description: e.target.value})}
                   rows={4}
-                  placeholder="Projenizi detayli olarak aciklayiniz..."
+                  placeholder="Projenizi detaylı olarak açıklayınız..."
+                  className="resize-none"
                 />
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className={`text-sm ${formData.project_description.length >= 50 ? 'text-emerald-600' : 'text-slate-500'}`}>
                   {formData.project_description.length}/50 karakter
                 </p>
               </div>
-              <div>
-                <Label>Proje Dosyalari</Label>
-                <div className="border-2 border-dashed rounded-lg p-6 text-center">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Proje Dosyaları</Label>
+                <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:border-slate-400 transition-colors">
                   <input
                     type="file"
                     onChange={(e) => handleFileUpload(e.target.files[0])}
@@ -506,21 +556,21 @@ function RequestWizard({ onClose, onSuccess, template }) {
                     accept=".step,.stp,.dxf,.pdf,.rar,.zip"
                   />
                   <label htmlFor="project-file" className="cursor-pointer">
-                    <Upload className="w-12 h-12 mx-auto text-muted-foreground" />
-                    <p className="mt-2">Dosya yuklemek icin tiklayin</p>
-                    <p className="text-sm text-muted-foreground">Max 100 MB - .step, .stp, .dxf, .pdf, .rar, .zip</p>
+                    <Upload className="w-12 h-12 mx-auto text-slate-400" />
+                    <p className="mt-2 font-medium text-slate-600">Dosya yüklemek için tıklayın</p>
+                    <p className="text-sm text-slate-400">Max 100 MB - .step, .stp, .dxf, .pdf, .rar, .zip</p>
                   </label>
                 </div>
                 {currentItem.file_name && (
-                  <div className="mt-2 p-2 bg-muted rounded flex items-center justify-between">
-                    <span>{currentItem.file_name}</span>
+                  <div className="mt-2 p-3 bg-slate-100 rounded-lg flex items-center justify-between">
+                    <span className="text-slate-700">{currentItem.file_name}</span>
                     <Button 
                       variant="ghost" 
                       size="sm"
                       onClick={() => {
                         setFormData({
                           ...formData,
-                          items: [...formData.items, { ...currentItem, id: Date.now(), item_name: 'Proje Dosyasi', material: 'N/A', quantity: 1 }],
+                          items: [...formData.items, { ...currentItem, id: Date.now(), item_name: 'Proje Dosyası', material: 'N/A', quantity: 1 }],
                         });
                         setCurrentItem({ ...currentItem, file: null, file_url: '', file_name: '', file_size: 0 });
                       }}
@@ -531,10 +581,10 @@ function RequestWizard({ onClose, onSuccess, template }) {
                 )}
                 {formData.items.length > 0 && (
                   <div className="mt-4 space-y-2">
-                    <Label>Yuklenen Dosyalar:</Label>
+                    <Label className="text-sm font-medium">Yüklenen Dosyalar:</Label>
                     {formData.items.map((item, idx) => (
-                      <div key={idx} className="p-2 bg-green-50 rounded flex items-center justify-between">
-                        <span>{item.file_name}</span>
+                      <div key={idx} className="p-3 bg-emerald-50 rounded-lg flex items-center justify-between">
+                        <span className="text-emerald-700">{item.file_name}</span>
                         <Button variant="ghost" size="sm" onClick={() => removeItem(idx)}>
                           <Trash2 className="w-4 h-4 text-red-500" />
                         </Button>
@@ -547,53 +597,60 @@ function RequestWizard({ onClose, onSuccess, template }) {
           );
         }
         
-        // Diger kategoriler - alt kategori secimi
         const category = CATEGORIES[formData.category];
         return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Yontem Secin</h3>
-            <RadioGroup
-              value={formData.sub_category}
-              onValueChange={(value) => setFormData({...formData, sub_category: value})}
-              className="space-y-3"
-            >
+          <div className="space-y-6">
+            <div className="text-center">
+              <h3 className="text-xl font-bold text-slate-800">Yöntem Seçin</h3>
+              <p className="text-slate-500 mt-1">{category?.name} için uygun yöntemi seçin</p>
+            </div>
+            <div className="space-y-3">
               {category?.subCategories.map((sub) => (
-                <div key={sub.value} className="flex items-center space-x-2">
-                  <RadioGroupItem value={sub.value} id={sub.value} />
-                  <Label htmlFor={sub.value} className="cursor-pointer">{sub.label}</Label>
+                <div
+                  key={sub.value}
+                  onClick={() => setFormData({...formData, sub_category: sub.value})}
+                  className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+                    formData.sub_category === sub.value 
+                      ? 'border-slate-800 bg-slate-50 shadow-lg' 
+                      : 'border-slate-200 hover:border-slate-400'
+                  }`}
+                >
+                  <span className="font-medium text-slate-700">{sub.label}</span>
                 </div>
               ))}
-            </RadioGroup>
+            </div>
           </div>
         );
 
       case 3:
         if (isKompleProje) {
-          // Komple proje - teslimat adimi
           return renderDeliveryStep();
         }
         
-        // Diger kategoriler - parca ekleme
         return (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold">Parca Ekle</h3>
+          <div className="space-y-6">
+            <div className="text-center">
+              <h3 className="text-xl font-bold text-slate-800">Parça Ekle</h3>
+              <p className="text-slate-500 mt-1">İmalat yapılacak parçaları ekleyin</p>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label>Parca Ismi *</Label>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Parça İsmi *</Label>
                 <Input
                   value={currentItem.item_name}
                   onChange={(e) => setCurrentItem({...currentItem, item_name: e.target.value})}
-                  placeholder="Ornek: Mil, Flans, Kapak"
+                  placeholder="Örnek: Mil, Flanş, Kapak"
+                  className="h-11"
                 />
               </div>
-              <div>
-                <Label>Malzeme *</Label>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Malzeme *</Label>
                 <Select
                   value={currentItem.material}
                   onValueChange={(value) => setCurrentItem({...currentItem, material: value})}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Malzeme secin veya yazin" />
+                  <SelectTrigger className="h-11">
+                    <SelectValue placeholder="Malzeme seçin" />
                   </SelectTrigger>
                   <SelectContent>
                     {MATERIALS.map((mat) => (
@@ -602,24 +659,25 @@ function RequestWizard({ onClose, onSuccess, template }) {
                   </SelectContent>
                 </Select>
                 <Input
-                  className="mt-2"
+                  className="mt-2 h-11"
                   value={currentItem.material}
                   onChange={(e) => setCurrentItem({...currentItem, material: e.target.value})}
                   placeholder="veya manuel girin"
                 />
               </div>
-              <div>
-                <Label>Adet *</Label>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Adet *</Label>
                 <Input
                   type="number"
                   min="1"
                   value={currentItem.quantity}
                   onChange={(e) => setCurrentItem({...currentItem, quantity: parseInt(e.target.value) || 1})}
+                  className="h-11"
                 />
               </div>
-              <div>
-                <Label>Teknik Dosya *</Label>
-                <div className="border-2 border-dashed rounded-lg p-4 text-center">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Teknik Dosya *</Label>
+                <div className="border-2 border-dashed border-slate-300 rounded-lg p-4 text-center hover:border-slate-400 transition-colors">
                   <input
                     type="file"
                     onChange={(e) => handleFileUpload(e.target.files[0])}
@@ -630,48 +688,48 @@ function RequestWizard({ onClose, onSuccess, template }) {
                   />
                   <label htmlFor="item-file" className="cursor-pointer">
                     {uploading ? (
-                      <span>Yukleniyor...</span>
+                      <span className="text-slate-500">Yükleniyor...</span>
                     ) : currentItem.file_name ? (
-                      <span className="text-green-600">{currentItem.file_name}</span>
+                      <span className="text-emerald-600 font-medium">{currentItem.file_name}</span>
                     ) : (
                       <>
-                        <Upload className="w-8 h-8 mx-auto text-muted-foreground" />
-                        <p className="text-sm">Dosya yukle (max 100MB)</p>
+                        <Upload className="w-8 h-8 mx-auto text-slate-400" />
+                        <p className="text-sm text-slate-500">Dosya yükle (max 100MB)</p>
                       </>
                     )}
                   </label>
                 </div>
               </div>
             </div>
-            <div>
-              <Label>Ek Notlar</Label>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Ek Notlar</Label>
               <Textarea
                 value={currentItem.notes}
                 onChange={(e) => setCurrentItem({...currentItem, notes: e.target.value})}
-                placeholder="Tolerans, yuzey islem vb. bilgiler..."
+                placeholder="Tolerans, yüzey işlem vb. bilgiler..."
+                className="resize-none"
+                rows={2}
               />
             </div>
-            <Button onClick={addItem} disabled={uploading}>
-              <Plus className="w-4 h-4 mr-2" /> Parca Ekle
+            <Button onClick={addItem} disabled={uploading} className="w-full h-11">
+              <Plus className="w-4 h-4 mr-2" /> Parça Ekle
             </Button>
 
             {formData.items.length > 0 && (
-              <div className="mt-6">
-                <h4 className="font-semibold mb-2">Eklenen Parcalar ({formData.items.length})</h4>
+              <div className="mt-6 p-4 bg-slate-50 rounded-xl">
+                <h4 className="font-semibold text-slate-800 mb-3">Eklenen Parçalar ({formData.items.length})</h4>
                 <div className="space-y-2">
                   {formData.items.map((item, idx) => (
-                    <div key={idx} className="p-3 bg-muted rounded-lg flex items-center justify-between">
+                    <div key={idx} className="p-3 bg-white rounded-lg shadow-sm flex items-center justify-between">
                       <div>
-                        <span className="font-medium">{item.item_name}</span>
-                        <span className="text-muted-foreground ml-2">
+                        <span className="font-medium text-slate-800">{item.item_name}</span>
+                        <span className="text-slate-500 ml-2 text-sm">
                           {item.material} - {item.quantity} Adet
                         </span>
                       </div>
-                      <div className="flex gap-2">
-                        <Button variant="ghost" size="sm" onClick={() => removeItem(idx)}>
-                          <Trash2 className="w-4 h-4 text-red-500" />
-                        </Button>
-                      </div>
+                      <Button variant="ghost" size="sm" onClick={() => removeItem(idx)}>
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </Button>
                     </div>
                   ))}
                 </div>
@@ -695,33 +753,63 @@ function RequestWizard({ onClose, onSuccess, template }) {
   };
 
   const renderDeliveryStep = () => (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Teslimat Secenekleri</h3>
-      <div className="flex items-center space-x-2">
+    <div className="space-y-6">
+      <div className="text-center">
+        <h3 className="text-xl font-bold text-slate-800">Teslimat Seçenekleri</h3>
+        <p className="text-slate-500 mt-1">Teslimat ve termin tercihlerinizi belirtin</p>
+      </div>
+
+      {/* İstenen Termin Tarihi - YENİ */}
+      <div className="p-4 bg-amber-50 rounded-xl border border-amber-200">
+        <div className="flex items-center gap-2 mb-3">
+          <Calendar className="w-5 h-5 text-amber-600" />
+          <Label className="text-sm font-semibold text-amber-800">İstenen Termin Tarihi</Label>
+        </div>
+        <Input
+          type="date"
+          value={formData.requested_delivery_date}
+          onChange={(e) => setFormData({...formData, requested_delivery_date: e.target.value})}
+          className="h-11"
+          min={new Date().toISOString().split('T')[0]}
+        />
+        <p className="text-xs text-amber-600 mt-2">
+          Bu tarih talebinizdir, kesin termin teklif aşamasında belirlenir.
+        </p>
+      </div>
+      
+      <div className="flex items-center space-x-3 p-4 rounded-xl border border-slate-200">
         <Checkbox
           id="delivery"
           checked={formData.delivery_to_address}
           onCheckedChange={(checked) => setFormData({...formData, delivery_to_address: checked})}
         />
-        <Label htmlFor="delivery" className="cursor-pointer">Adresime teslim edilsin</Label>
+        <Label htmlFor="delivery" className="cursor-pointer font-medium">
+          <Truck className="w-5 h-5 inline mr-2 text-slate-600" />
+          Adresime teslim edilsin
+        </Label>
       </div>
       
       {formData.delivery_to_address && (
-        <div className="space-y-4 pl-6 border-l-2 border-primary">
+        <div className="space-y-4 pl-4 border-l-4 border-slate-800 ml-2">
           <RadioGroup
             value={formData.use_profile_address ? 'profile' : 'custom'}
             onValueChange={(value) => setFormData({...formData, use_profile_address: value === 'profile'})}
+            className="space-y-3"
           >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="profile" id="profile-addr" />
-              <Label htmlFor="profile-addr" className="cursor-pointer">
-                Fatura adresime teslim et
-                <p className="text-sm text-muted-foreground">{user?.address}</p>
-              </Label>
+            <div className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${formData.use_profile_address ? 'border-slate-800 bg-slate-50' : 'border-slate-200'}`}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="profile" id="profile-addr" />
+                <Label htmlFor="profile-addr" className="cursor-pointer flex-1">
+                  <span className="font-medium">Fatura adresime teslim et</span>
+                  <p className="text-sm text-slate-500 mt-1">{user?.address}</p>
+                </Label>
+              </div>
             </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="custom" id="custom-addr" />
-              <Label htmlFor="custom-addr" className="cursor-pointer">Farkli bir adrese teslim et</Label>
+            <div className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${!formData.use_profile_address ? 'border-slate-800 bg-slate-50' : 'border-slate-200'}`}>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="custom" id="custom-addr" />
+                <Label htmlFor="custom-addr" className="cursor-pointer font-medium">Farklı bir adrese teslim et</Label>
+              </div>
             </div>
           </RadioGroup>
           
@@ -730,22 +818,23 @@ function RequestWizard({ onClose, onSuccess, template }) {
               value={formData.delivery_address}
               onChange={(e) => setFormData({...formData, delivery_address: e.target.value})}
               placeholder="Teslimat adresi..."
+              className="resize-none"
+              rows={2}
             />
           )}
           
-          <div className="p-3 bg-blue-50 rounded-lg flex items-start gap-2">
-            <Truck className="w-5 h-5 text-blue-500 mt-0.5" />
+          <div className="p-4 bg-blue-50 rounded-xl flex items-start gap-3">
+            <Truck className="w-5 h-5 text-blue-600 mt-0.5 flex-shrink-0" />
             <p className="text-sm text-blue-700">
-              Adresinize teslim secenegini isaretlerseniz, admin konumunuzu gorerek 
-              nakliye maliyetini teklifine dahil edecektir.
+              Adresinize teslim seçeneğini işaretlerseniz, nakliye maliyeti teklife dahil edilecektir.
             </p>
           </div>
         </div>
       )}
       
       {!formData.delivery_to_address && (
-        <div className="p-3 bg-muted rounded-lg">
-          <p className="text-sm">Parcalari fabrikadan kendiniz alacaksiniz.</p>
+        <div className="p-4 bg-slate-100 rounded-xl">
+          <p className="text-slate-600">Parçaları fabrikadan kendiniz alacaksınız.</p>
         </div>
       )}
     </div>
@@ -753,46 +842,52 @@ function RequestWizard({ onClose, onSuccess, template }) {
 
   const renderSummaryStep = () => (
     <div className="space-y-6">
-      <h3 className="text-lg font-semibold">Ozet ve Onayla</h3>
+      <div className="text-center">
+        <h3 className="text-xl font-bold text-slate-800">Özet ve Onayla</h3>
+        <p className="text-slate-500 mt-1">Bilgilerinizi kontrol edin ve gönderin</p>
+      </div>
       
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Fatura Bilgileri</CardTitle>
+      <Card className="border-slate-200">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Building2 className="w-4 h-4" /> Fatura Bilgileri
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          <p><strong>Sirket:</strong> {user?.company_name}</p>
-          <p><strong>Vergi Dairesi:</strong> {user?.tax_office}</p>
-          <p><strong>Vergi No:</strong> {user?.tax_number}</p>
-          <p><strong>Adres:</strong> {user?.address}</p>
-          <p><strong>Telefon:</strong> {user?.phone}</p>
+        <CardContent className="space-y-1 text-sm">
+          <p><span className="text-slate-500">Şirket:</span> <span className="font-medium">{user?.company_name}</span></p>
+          <p><span className="text-slate-500">Vergi Dairesi:</span> <span className="font-medium">{user?.tax_office}</span></p>
+          <p><span className="text-slate-500">Vergi No:</span> <span className="font-medium">{user?.tax_number}</span></p>
+          <p><span className="text-slate-500">Telefon:</span> <span className="font-medium">{user?.phone}</span></p>
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Talep Detaylari</CardTitle>
+      <Card className="border-slate-200">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Layers className="w-4 h-4" /> Talep Detayları
+          </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm">
-          <p><strong>Kategori:</strong> {CATEGORIES[formData.category]?.name}</p>
+        <CardContent className="space-y-1 text-sm">
+          <p><span className="text-slate-500">Kategori:</span> <span className="font-medium">{CATEGORIES[formData.category]?.name}</span></p>
           {formData.sub_category && (
-            <p><strong>Yontem:</strong> {CATEGORIES[formData.category]?.subCategories.find(s => s.value === formData.sub_category)?.label}</p>
+            <p><span className="text-slate-500">Yöntem:</span> <span className="font-medium">{CATEGORIES[formData.category]?.subCategories.find(s => s.value === formData.sub_category)?.label}</span></p>
           )}
-          <p><strong>Toplam Parca:</strong> {formData.items.length}</p>
-          {formData.project_description && (
-            <p><strong>Proje Aciklamasi:</strong> {formData.project_description}</p>
+          <p><span className="text-slate-500">Toplam Parça:</span> <span className="font-medium">{formData.items.length}</span></p>
+          {formData.requested_delivery_date && (
+            <p><span className="text-slate-500">İstenen Termin:</span> <span className="font-medium text-amber-600">{new Date(formData.requested_delivery_date).toLocaleDateString('tr-TR')}</span></p>
           )}
         </CardContent>
       </Card>
 
       {formData.items.length > 0 && !isKompleProje && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Parcalar</CardTitle>
+        <Card className="border-slate-200">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Parçalar</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
               {formData.items.map((item, idx) => (
-                <div key={idx} className="p-2 bg-muted rounded text-sm">
+                <div key={idx} className="p-2 bg-slate-50 rounded text-sm">
                   {item.item_name} - {item.material} - {item.quantity} Adet
                 </div>
               ))}
@@ -801,44 +896,47 @@ function RequestWizard({ onClose, onSuccess, template }) {
         </Card>
       )}
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Teslimat</CardTitle>
+      <Card className="border-slate-200">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Truck className="w-4 h-4" /> Teslimat
+          </CardTitle>
         </CardHeader>
         <CardContent className="text-sm">
           {formData.delivery_to_address ? (
-            <div className="flex items-center gap-2 text-green-600">
+            <div className="flex items-center gap-2 text-emerald-600">
               <CheckCircle2 className="w-5 h-5" />
               <div>
-                <p>Adresime teslim edilsin</p>
-                <p className="text-muted-foreground">
+                <p className="font-medium">Adresime teslim edilsin</p>
+                <p className="text-slate-500">
                   {formData.use_profile_address ? user?.address : formData.delivery_address}
                 </p>
               </div>
             </div>
           ) : (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 text-slate-600">
               <XCircle className="w-5 h-5" />
-              <p>Fabrikadan kendim alacagim</p>
+              <p>Fabrikadan kendim alacağım</p>
             </div>
           )}
         </CardContent>
       </Card>
 
-      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-3 p-4 rounded-xl border border-slate-200">
         <Checkbox
           id="save-template"
           checked={formData.save_as_template}
           onCheckedChange={(checked) => setFormData({...formData, save_as_template: checked})}
         />
-        <Label htmlFor="save-template">Bu talebi sablon olarak kaydet</Label>
+        <Label htmlFor="save-template" className="cursor-pointer">Bu talebi şablon olarak kaydet</Label>
       </div>
       
       {formData.save_as_template && (
         <Input
           value={formData.template_name}
           onChange={(e) => setFormData({...formData, template_name: e.target.value})}
-          placeholder="Sablon adi (ornek: Mil Parcasi - Aylik Siparis)"
+          placeholder="Şablon adı (örnek: Mil Parçası - Aylık Sipariş)"
+          className="h-11"
         />
       )}
     </div>
@@ -846,42 +944,44 @@ function RequestWizard({ onClose, onSuccess, template }) {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-slate-800">
             <FileText className="w-5 h-5" />
             Yeni Teklif Talebi
           </DialogTitle>
           <DialogDescription>
-            Adim {step} / {totalSteps}
+            Adım {step} / {totalSteps}
           </DialogDescription>
         </DialogHeader>
 
         {/* Progress bar */}
-        <div className="w-full bg-muted rounded-full h-2">
+        <div className="w-full bg-slate-200 rounded-full h-2">
           <div 
-            className="bg-primary h-2 rounded-full transition-all"
+            className="bg-gradient-to-r from-slate-700 to-slate-800 h-2 rounded-full transition-all duration-300"
             style={{ width: `${(step / totalSteps) * 100}%` }}
           />
         </div>
 
-        <div className="py-4">
-          {renderStep()}
-        </div>
+        <ScrollArea className="flex-1 pr-4">
+          <div className="py-4">
+            {renderStep()}
+          </div>
+        </ScrollArea>
 
-        <DialogFooter className="gap-2">
+        <DialogFooter className="gap-2 border-t pt-4">
           {step > 1 && (
             <Button variant="outline" onClick={() => setStep(step - 1)}>
               <ChevronLeft className="w-4 h-4 mr-1" /> Geri
             </Button>
           )}
           {step < totalSteps ? (
-            <Button onClick={() => setStep(step + 1)} disabled={!canProceed()}>
-              Ileri <ChevronRight className="w-4 h-4 ml-1" />
+            <Button onClick={() => setStep(step + 1)} disabled={!canProceed()} className="bg-slate-800 hover:bg-slate-700">
+              İleri <ChevronRight className="w-4 h-4 ml-1" />
             </Button>
           ) : (
-            <Button onClick={handleSubmit} disabled={submitting}>
-              {submitting ? 'Gonderiliyor...' : 'Teklif Talebini Gonder'}
+            <Button onClick={handleSubmit} disabled={submitting} className="bg-emerald-600 hover:bg-emerald-700">
+              {submitting ? 'Gönderiliyor...' : 'Teklif Talebini Gönder'}
               <Send className="w-4 h-4 ml-2" />
             </Button>
           )}
@@ -916,7 +1016,6 @@ function RequestDetail({ requestId, onClose, onUpdate }) {
       const result = await api(`/requests/${requestId}`);
       setData(result);
       
-      // Initialize quote form with items
       if (result.items && result.items.length > 0) {
         setQuoteForm({
           ...quoteForm,
@@ -972,7 +1071,12 @@ function RequestDetail({ requestId, onClose, onUpdate }) {
     const totalPrice = quoteForm.items.reduce((sum, item) => sum + (parseFloat(item.total_price) || 0), 0) + (parseFloat(quoteForm.delivery_cost) || 0);
     
     if (!quoteForm.delivery_date) {
-      toast.error('Termin tarihi secin');
+      toast.error('Termin tarihi seçin');
+      return;
+    }
+
+    if (totalPrice <= 0) {
+      toast.error('Lütfen en az bir parça için fiyat girin');
       return;
     }
     
@@ -994,7 +1098,7 @@ function RequestDetail({ requestId, onClose, onUpdate }) {
           })),
         },
       });
-      toast.success('Teklif gonderildi');
+      toast.success('Teklif gönderildi');
       loadData();
       onUpdate();
     } catch (error) {
@@ -1010,7 +1114,7 @@ function RequestDetail({ requestId, onClose, onUpdate }) {
         method: 'POST',
         body: { accept },
       });
-      toast.success(accept ? 'Teklif onaylandi' : 'Teklif reddedildi');
+      toast.success(accept ? 'Teklif onaylandı' : 'Teklif reddedildi');
       loadData();
       onUpdate();
     } catch (error) {
@@ -1030,7 +1134,7 @@ function RequestDetail({ requestId, onClose, onUpdate }) {
       <Dialog open={true} onOpenChange={onClose}>
         <DialogContent>
           <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-800"></div>
           </div>
         </DialogContent>
       </Dialog>
@@ -1049,106 +1153,124 @@ function RequestDetail({ requestId, onClose, onUpdate }) {
           <DialogTitle className="flex items-center gap-2">
             <Package className="w-5 h-5" />
             Talep #{request.request_number}
-            <Badge className={STATUS_COLORS[request.status]}>
+            <Badge className={`${STATUS_COLORS[request.status]} text-white`}>
               {STATUS_LABELS[request.status]}
             </Badge>
           </DialogTitle>
         </DialogHeader>
 
         <ScrollArea className="flex-1 pr-4">
-          <div className="space-y-6">
-            {/* Musteri Bilgileri (Admin icin) */}
+          <div className="space-y-4 pb-4">
+            {/* Müşteri Bilgileri (Admin için) */}
             {isAdmin && (
-              <Card>
-                <CardHeader>
+              <Card className="border-slate-200">
+                <CardHeader className="pb-3">
                   <CardTitle className="text-base flex items-center gap-2">
-                    <Building2 className="w-4 h-4" /> Musteri Bilgileri
+                    <Building2 className="w-4 h-4" /> Müşteri Bilgileri
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="grid grid-cols-2 gap-4 text-sm">
-                  <div><strong>Ad Soyad:</strong> {request.full_name}</div>
-                  <div><strong>Sirket:</strong> {request.company_name}</div>
-                  <div><strong>Email:</strong> {request.email}</div>
-                  <div><strong>Telefon:</strong> {request.phone}</div>
-                  <div><strong>Vergi Dairesi:</strong> {request.tax_office}</div>
-                  <div><strong>Vergi No:</strong> {request.tax_number}</div>
-                  <div className="col-span-2"><strong>Adres:</strong> {request.profile_address}</div>
+                <CardContent className="grid grid-cols-2 gap-3 text-sm">
+                  <div><span className="text-slate-500">Ad Soyad:</span> <span className="font-medium">{request.full_name}</span></div>
+                  <div><span className="text-slate-500">Şirket:</span> <span className="font-medium">{request.company_name}</span></div>
+                  <div><span className="text-slate-500">Email:</span> <span className="font-medium">{request.email}</span></div>
+                  <div><span className="text-slate-500">Telefon:</span> <span className="font-medium">{request.phone}</span></div>
+                  <div><span className="text-slate-500">Vergi Dairesi:</span> <span className="font-medium">{request.tax_office}</span></div>
+                  <div><span className="text-slate-500">Vergi No:</span> <span className="font-medium">{request.tax_number}</span></div>
+                  <div className="col-span-2"><span className="text-slate-500">Adres:</span> <span className="font-medium">{request.profile_address}</span></div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* İstenen Termin Tarihi - Admin'e göster */}
+            {request.requested_delivery_date && (
+              <Card className="border-amber-200 bg-amber-50">
+                <CardContent className="py-4">
+                  <div className="flex items-center gap-3">
+                    <Calendar className="w-5 h-5 text-amber-600" />
+                    <div>
+                      <p className="text-sm font-medium text-amber-800">Müşterinin İstediği Termin Tarihi</p>
+                      <p className="text-lg font-bold text-amber-900">
+                        {new Date(request.requested_delivery_date).toLocaleDateString('tr-TR')}
+                      </p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
             )}
 
             {/* Teslimat Bilgisi */}
-            <Card>
-              <CardHeader>
+            <Card className="border-slate-200">
+              <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <Truck className="w-4 h-4" /> Teslimat Tercihi
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {request.delivery_to_address ? (
-                  <div className="flex items-start gap-2 text-green-600">
+                  <div className="flex items-start gap-3 text-emerald-600">
                     <CheckCircle2 className="w-5 h-5 mt-0.5" />
                     <div>
-                      <p className="font-medium">Adresine Teslim Isteniyor</p>
-                      <p className="text-muted-foreground text-sm">
+                      <p className="font-medium">Adresine Teslim İsteniyor</p>
+                      <p className="text-slate-500 text-sm">
                         {request.delivery_address || request.profile_address}
                       </p>
                       {isAdmin && (
-                        <p className="text-blue-600 text-sm mt-1">
-                          Nakliye maliyetini hesapla ve teklife ekle!
+                        <p className="text-blue-600 text-sm mt-2 font-medium">
+                          💡 Nakliye maliyetini hesapla ve teklife ekle!
                         </p>
                       )}
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 text-slate-600">
                     <XCircle className="w-5 h-5" />
-                    <p>Musteri Kendi Alacak (Fabrikadan teslim)</p>
+                    <p>Müşteri Kendi Alacak (Fabrikadan teslim)</p>
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            {/* Talep Detaylari */}
-            <Card>
-              <CardHeader>
+            {/* Talep Detayları */}
+            <Card className="border-slate-200">
+              <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Layers className="w-4 h-4" /> Talep Detaylari
+                  <Layers className="w-4 h-4" /> Talep Detayları
                 </CardTitle>
               </CardHeader>
-              <CardContent className="text-sm space-y-2">
-                <p><strong>Kategori:</strong> {CATEGORIES[request.category]?.name}</p>
+              <CardContent className="text-sm space-y-1">
+                <p><span className="text-slate-500">Kategori:</span> <span className="font-medium">{CATEGORIES[request.category]?.name}</span></p>
                 {request.sub_category && (
-                  <p><strong>Yontem:</strong> {CATEGORIES[request.category]?.subCategories.find(s => s.value === request.sub_category)?.label}</p>
+                  <p><span className="text-slate-500">Yöntem:</span> <span className="font-medium">{CATEGORIES[request.category]?.subCategories.find(s => s.value === request.sub_category)?.label}</span></p>
                 )}
                 {request.project_description && (
-                  <p><strong>Proje Aciklamasi:</strong> {request.project_description}</p>
+                  <p><span className="text-slate-500">Proje Açıklaması:</span> <span className="font-medium">{request.project_description}</span></p>
                 )}
-                <p><strong>Olusturulma:</strong> {new Date(request.created_at).toLocaleString('tr-TR')}</p>
+                <p><span className="text-slate-500">Oluşturulma:</span> <span className="font-medium">{new Date(request.created_at).toLocaleString('tr-TR')}</span></p>
               </CardContent>
             </Card>
 
-            {/* Parcalar */}
+            {/* Parçalar - TÜM PARÇALAR GÖSTERİLİYOR */}
             {items && items.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Parcalar ({items.length})</CardTitle>
+              <Card className="border-slate-200">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Parçalar ({items.length})</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {items.map((item, idx) => (
-                    <div key={item.id} className="border rounded-lg p-4 space-y-3">
-                      <div className="flex items-center justify-between">
+                    <div key={item.id} className="border border-slate-200 rounded-xl p-4 space-y-3">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
                         <div>
-                          <span className="font-semibold">{item.item_name}</span>
-                          <span className="text-muted-foreground ml-2">
-                            {item.material} | {item.quantity} Adet
-                          </span>
+                          <span className="font-semibold text-slate-800">{idx + 1}. {item.item_name}</span>
+                          <div className="text-slate-500 text-sm mt-1">
+                            <span className="inline-block mr-3">Malzeme: {item.material}</span>
+                            <span className="inline-block">Adet: {item.quantity}</span>
+                          </div>
                         </div>
                         {item.file_url && (
                           <a 
                             href={item.file_url} 
                             target="_blank" 
-                            className="text-primary hover:underline text-sm flex items-center gap-1"
+                            className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-1 bg-blue-50 px-3 py-1 rounded-lg"
                           >
                             <FileText className="w-4 h-4" /> {item.file_name}
                           </a>
@@ -1156,24 +1278,26 @@ function RequestDetail({ requestId, onClose, onUpdate }) {
                       </div>
                       
                       {item.notes && (
-                        <p className="text-sm text-muted-foreground">{item.notes}</p>
+                        <p className="text-sm text-slate-600 bg-slate-50 p-2 rounded">📝 {item.notes}</p>
                       )}
 
-                      {/* Admin fiyatlandirma */}
+                      {/* Admin fiyatlandırma */}
                       {canQuote && (
-                        <div className="bg-muted p-3 rounded-lg">
-                          <Label className="text-sm">Fiyatlandirma</Label>
-                          <div className="flex items-center gap-2 mt-2">
+                        <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+                          <Label className="text-sm font-semibold text-emerald-800 flex items-center gap-2">
+                            <DollarSign className="w-4 h-4" /> Fiyatlandırma
+                          </Label>
+                          <div className="flex items-center gap-3 mt-2 flex-wrap">
                             <Input
                               type="number"
                               placeholder="Birim Fiyat"
-                              className="w-32"
+                              className="w-32 h-10"
                               value={quoteForm.items[idx]?.unit_price || ''}
                               onChange={(e) => updateItemPrice(idx, e.target.value)}
                             />
-                            <span>TRY x {item.quantity} =</span>
-                            <span className="font-semibold">
-                              {quoteForm.items[idx]?.total_price?.toFixed(2) || '0.00'} TRY
+                            <span className="text-slate-600">TRY × {item.quantity} =</span>
+                            <span className="font-bold text-emerald-700 text-lg">
+                              {(quoteForm.items[idx]?.total_price || 0).toFixed(2)} TRY
                             </span>
                           </div>
                         </div>
@@ -1182,25 +1306,26 @@ function RequestDetail({ requestId, onClose, onUpdate }) {
                       {/* Yorumlar */}
                       <div className="border-t pt-3">
                         <button 
-                          className="text-sm text-primary flex items-center gap-1"
+                          className="text-sm text-slate-600 hover:text-slate-800 flex items-center gap-1 font-medium"
                           onClick={() => document.getElementById(`comments-${item.id}`).classList.toggle('hidden')}
                         >
                           <MessageSquare className="w-4 h-4" />
                           Yorumlar ({item.comments?.length || 0})
                         </button>
-                        <div id={`comments-${item.id}`} className="hidden mt-2 space-y-2">
+                        <div id={`comments-${item.id}`} className="hidden mt-3 space-y-2">
                           {item.comments?.map((comment) => (
                             <div 
                               key={comment.id} 
-                              className={`p-2 rounded text-sm ${
-                                comment.commenter_role === 'admin' ? 'bg-gray-100 ml-0' : 'bg-blue-50 ml-4'
+                              className={`p-3 rounded-lg text-sm ${
+                                comment.commenter_role === 'admin' ? 'bg-slate-100' : 'bg-blue-50 ml-4'
                               }`}
                             >
-                              <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+                              <div className="flex items-center gap-2 text-xs text-slate-500 mb-1">
                                 <span className="font-medium">{comment.full_name}</span>
+                                <span>•</span>
                                 <span>{new Date(comment.created_at).toLocaleString('tr-TR')}</span>
                               </div>
-                              <p>{comment.comment}</p>
+                              <p className="text-slate-700">{comment.comment}</p>
                             </div>
                           ))}
                           <div className="flex gap-2 mt-2">
@@ -1209,8 +1334,9 @@ function RequestDetail({ requestId, onClose, onUpdate }) {
                               value={newComment[item.id] || ''}
                               onChange={(e) => setNewComment({...newComment, [item.id]: e.target.value})}
                               onKeyPress={(e) => e.key === 'Enter' && addComment(item.id)}
+                              className="h-10"
                             />
-                            <Button size="sm" onClick={() => addComment(item.id)}>
+                            <Button size="sm" onClick={() => addComment(item.id)} className="h-10">
                               <Send className="w-4 h-4" />
                             </Button>
                           </div>
@@ -1222,108 +1348,118 @@ function RequestDetail({ requestId, onClose, onUpdate }) {
               </Card>
             )}
 
-            {/* Teklif Formu (Admin) */}
+            {/* TEKLİF FORMU (Admin) - DÜZELTİLDİ */}
             {canQuote && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-base">Teklif Olustur</CardTitle>
+              <Card className="border-2 border-emerald-500 bg-emerald-50">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2 text-emerald-800">
+                    <Award className="w-5 h-5" /> Teklif Oluştur
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {request.delivery_to_address && (
-                    <div>
-                      <Label>Nakliye Ucreti (TRY)</Label>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">Nakliye Ücreti (TRY)</Label>
                       <Input
                         type="number"
                         value={quoteForm.delivery_cost}
                         onChange={(e) => setQuoteForm({...quoteForm, delivery_cost: e.target.value})}
+                        className="h-11"
+                        placeholder="0.00"
                       />
                     </div>
                   )}
-                  <div>
-                    <Label>Termin Tarihi</Label>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Termin Tarihi *</Label>
                     <Input
                       type="date"
                       value={quoteForm.delivery_date}
                       onChange={(e) => setQuoteForm({...quoteForm, delivery_date: e.target.value})}
+                      className="h-11"
+                      min={new Date().toISOString().split('T')[0]}
                     />
                   </div>
-                  <div>
-                    <Label>Notlar</Label>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Notlar</Label>
                     <Textarea
                       value={quoteForm.notes}
                       onChange={(e) => setQuoteForm({...quoteForm, notes: e.target.value})}
+                      placeholder="Teklif ile ilgili notlarınız..."
+                      className="resize-none"
+                      rows={2}
                     />
                   </div>
                   <Separator />
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold">Toplam Tutar:</span>
-                    <span className="text-xl font-bold">
+                  <div className="flex items-center justify-between p-4 bg-white rounded-xl">
+                    <span className="font-semibold text-slate-700">Toplam Tutar:</span>
+                    <span className="text-2xl font-bold text-emerald-600">
                       {(
                         quoteForm.items.reduce((sum, item) => sum + (parseFloat(item.total_price) || 0), 0) +
                         (parseFloat(quoteForm.delivery_cost) || 0)
                       ).toFixed(2)} TRY
                     </span>
                   </div>
-                  <Button className="w-full" onClick={submitQuote} disabled={submittingQuote}>
-                    {submittingQuote ? 'Gonderiliyor...' : 'Teklif Gonder'}
+                  <Button 
+                    className="w-full h-12 text-base font-semibold bg-emerald-600 hover:bg-emerald-700" 
+                    onClick={submitQuote} 
+                    disabled={submittingQuote}
+                  >
+                    {submittingQuote ? 'Gönderiliyor...' : 'Teklifi Gönder'}
+                    <Send className="w-5 h-5 ml-2" />
                   </Button>
                 </CardContent>
               </Card>
             )}
 
-            {/* Teklif Goruntuleme */}
+            {/* Teklif Görüntüleme */}
             {quote && (
-              <Card>
-                <CardHeader>
+              <Card className="border-blue-200 bg-blue-50">
+                <CardHeader className="pb-3">
                   <CardTitle className="text-base flex items-center gap-2">
                     <FileCheck className="w-4 h-4" />
                     Teklif
-                    <Badge className={quote.status === 'accepted' ? 'bg-green-500' : quote.status === 'rejected' ? 'bg-red-500' : 'bg-blue-500'}>
-                      {quote.status === 'accepted' ? 'Onaylandi' : quote.status === 'rejected' ? 'Reddedildi' : 'Bekliyor'}
+                    <Badge className={`${quote.status === 'accepted' ? 'bg-emerald-500' : quote.status === 'rejected' ? 'bg-red-500' : 'bg-blue-500'} text-white`}>
+                      {quote.status === 'accepted' ? 'Onaylandı' : quote.status === 'rejected' ? 'Reddedildi' : 'Bekliyor'}
                     </Badge>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {quote.items && (
-                    <div className="space-y-2">
+                    <div className="space-y-2 bg-white p-3 rounded-lg">
                       {quote.items.map((qi) => {
                         const item = items.find(i => i.id === qi.request_item_id);
                         return (
                           <div key={qi.id} className="flex justify-between text-sm">
-                            <span>{item?.item_name} x {item?.quantity}</span>
-                            <span>{parseFloat(qi.total_price).toFixed(2)} TRY</span>
+                            <span className="text-slate-600">{item?.item_name} × {item?.quantity}</span>
+                            <span className="font-medium">{parseFloat(qi.total_price).toFixed(2)} TRY</span>
                           </div>
                         );
                       })}
                     </div>
                   )}
                   {parseFloat(quote.delivery_cost) > 0 && (
-                    <div className="flex justify-between text-sm">
-                      <span>Nakliye</span>
-                      <span>{parseFloat(quote.delivery_cost).toFixed(2)} TRY</span>
+                    <div className="flex justify-between text-sm bg-white p-3 rounded-lg">
+                      <span className="text-slate-600">Nakliye</span>
+                      <span className="font-medium">{parseFloat(quote.delivery_cost).toFixed(2)} TRY</span>
                     </div>
                   )}
                   <Separator />
-                  <div className="flex justify-between font-semibold">
-                    <span>Toplam</span>
-                    <span>{parseFloat(quote.total_price).toFixed(2)} TRY</span>
+                  <div className="flex justify-between items-center">
+                    <span className="font-semibold">Toplam</span>
+                    <span className="text-xl font-bold text-blue-700">{parseFloat(quote.total_price).toFixed(2)} TRY</span>
                   </div>
-                  <div className="text-sm">
-                    <strong>Termin:</strong> {new Date(quote.delivery_date).toLocaleDateString('tr-TR')}
+                  <div className="text-sm bg-white p-3 rounded-lg">
+                    <p><span className="text-slate-500">Termin:</span> <span className="font-medium">{new Date(quote.delivery_date).toLocaleDateString('tr-TR')}</span></p>
+                    {quote.notes && <p className="mt-1"><span className="text-slate-500">Notlar:</span> <span className="font-medium">{quote.notes}</span></p>}
                   </div>
-                  {quote.notes && (
-                    <div className="text-sm">
-                      <strong>Notlar:</strong> {quote.notes}
-                    </div>
-                  )}
                   
                   {canRespond && (
-                    <div className="flex gap-2 pt-4">
-                      <Button className="flex-1 bg-green-600 hover:bg-green-700" onClick={() => respondToQuote(true)}>
-                        <CheckCircle2 className="w-4 h-4 mr-2" /> Onayla
+                    <div className="flex gap-3 pt-2">
+                      <Button className="flex-1 h-12 bg-emerald-600 hover:bg-emerald-700" onClick={() => respondToQuote(true)}>
+                        <CheckSquare className="w-5 h-5 mr-2" /> Onayla
                       </Button>
-                      <Button variant="destructive" className="flex-1" onClick={() => respondToQuote(false)}>
-                        <XCircle className="w-4 h-4 mr-2" /> Reddet
+                      <Button variant="destructive" className="flex-1 h-12" onClick={() => respondToQuote(false)}>
+                        <XSquare className="w-5 h-5 mr-2" /> Reddet
                       </Button>
                     </div>
                   )}
@@ -1331,45 +1467,46 @@ function RequestDetail({ requestId, onClose, onUpdate }) {
               </Card>
             )}
 
-            {/* Mesajlar */}
-            <Card>
-              <CardHeader>
+            {/* Mesajlar - DÜZELTİLDİ */}
+            <Card className="border-slate-200">
+              <CardHeader className="pb-3">
                 <CardTitle className="text-base flex items-center gap-2">
                   <MessageSquare className="w-4 h-4" /> Mesajlar
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <ScrollArea className="h-48 mb-4">
+                <div className="h-48 overflow-y-auto mb-4 p-2 bg-slate-50 rounded-lg">
                   {messages.length === 0 ? (
-                    <p className="text-center text-muted-foreground py-4">Henuz mesaj yok</p>
+                    <p className="text-center text-slate-400 py-8">Henüz mesaj yok</p>
                   ) : (
                     <div className="space-y-3">
                       {messages.map((msg) => (
                         <div
                           key={msg.id}
-                          className={`p-3 rounded-lg max-w-[80%] ${
+                          className={`p-3 rounded-xl max-w-[85%] ${
                             msg.sender_id === user.id
-                              ? 'bg-primary text-primary-foreground ml-auto'
-                              : 'bg-muted'
+                              ? 'bg-slate-800 text-white ml-auto'
+                              : 'bg-white shadow-sm'
                           }`}
                         >
-                          <div className="text-xs opacity-70 mb-1">
-                            {msg.full_name} - {new Date(msg.created_at).toLocaleString('tr-TR')}
+                          <div className={`text-xs mb-1 ${msg.sender_id === user.id ? 'text-slate-300' : 'text-slate-500'}`}>
+                            {msg.full_name} • {new Date(msg.created_at).toLocaleString('tr-TR')}
                           </div>
                           <p className="text-sm">{msg.message}</p>
                         </div>
                       ))}
                     </div>
                   )}
-                </ScrollArea>
+                </div>
                 <div className="flex gap-2">
                   <Input
                     placeholder="Mesaj yaz..."
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                    className="h-11"
                   />
-                  <Button onClick={sendMessage} disabled={sendingMessage}>
+                  <Button onClick={sendMessage} disabled={sendingMessage} className="h-11 px-6">
                     <Send className="w-4 h-4" />
                   </Button>
                 </div>
@@ -1427,73 +1564,97 @@ function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-slate-50">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur">
-        <div className="container flex h-16 items-center justify-between">
+      <header className="sticky top-0 z-50 border-b bg-white shadow-sm">
+        <div className="container flex h-16 items-center justify-between px-4">
           <div className="flex items-center gap-4">
             <button 
-              className="lg:hidden"
+              className="lg:hidden p-2 hover:bg-slate-100 rounded-lg"
               onClick={() => setSidebarOpen(!sidebarOpen)}
             >
               <Menu className="w-6 h-6" />
             </button>
-            <div className="flex items-center gap-2">
-              <Factory className="w-8 h-8 text-primary" />
-              <span className="text-xl font-bold">Imalat Portal</span>
+            <div className="flex items-center gap-3">
+              <img src={LOGO_URL} alt="MANES Logo" className="h-10 w-auto" />
             </div>
           </div>
           <div className="flex items-center gap-4">
             {isAdmin && stats && (
-              <Badge variant="outline" className="hidden sm:flex">
+              <Badge variant="outline" className="hidden sm:flex border-amber-300 text-amber-700 bg-amber-50">
                 <Bell className="w-4 h-4 mr-1" />
-                {stats.unread_messages} Okunmamis
+                {stats.unread_messages} Okunmamış
               </Badge>
             )}
-            <div className="flex items-center gap-2">
-              <User className="w-5 h-5" />
-              <span className="hidden sm:inline">{user?.full_name}</span>
-              {isAdmin && <Badge variant="secondary">Admin</Badge>}
+            <div className="flex items-center gap-2 bg-slate-100 px-3 py-2 rounded-lg">
+              <User className="w-4 h-4 text-slate-600" />
+              <span className="hidden sm:inline text-sm font-medium text-slate-700">{user?.full_name}</span>
+              {isAdmin && <Badge className="bg-slate-800 text-white text-xs">Admin</Badge>}
             </div>
-            <Button variant="ghost" size="icon" onClick={logout}>
+            <Button variant="ghost" size="icon" onClick={logout} className="hover:bg-red-50 hover:text-red-600">
               <LogOut className="w-5 h-5" />
             </Button>
           </div>
         </div>
       </header>
 
-      <div className="container py-6">
+      <div className="container py-6 px-4">
         {/* Admin Stats */}
         {isAdmin && stats && (
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-            <Card>
+            <Card className="border-0 shadow-sm bg-gradient-to-br from-amber-50 to-amber-100">
               <CardContent className="pt-6">
-                <div className="text-2xl font-bold text-yellow-600">{stats.pending}</div>
-                <p className="text-sm text-muted-foreground">Bekleyen</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-3xl font-bold text-amber-700">{stats.pending}</div>
+                    <p className="text-sm text-amber-600 font-medium">Bekleyen</p>
+                  </div>
+                  <Clock className="w-8 h-8 text-amber-500 opacity-50" />
+                </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="border-0 shadow-sm bg-gradient-to-br from-blue-50 to-blue-100">
               <CardContent className="pt-6">
-                <div className="text-2xl font-bold text-blue-600">{stats.quoted}</div>
-                <p className="text-sm text-muted-foreground">Teklif Verilmis</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-3xl font-bold text-blue-700">{stats.quoted}</div>
+                    <p className="text-sm text-blue-600 font-medium">Teklif Verilmiş</p>
+                  </div>
+                  <FileText className="w-8 h-8 text-blue-500 opacity-50" />
+                </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="border-0 shadow-sm bg-gradient-to-br from-emerald-50 to-emerald-100">
               <CardContent className="pt-6">
-                <div className="text-2xl font-bold text-green-600">{stats.approved}</div>
-                <p className="text-sm text-muted-foreground">Onaylanan</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-3xl font-bold text-emerald-700">{stats.approved}</div>
+                    <p className="text-sm text-emerald-600 font-medium">Onaylanan</p>
+                  </div>
+                  <CheckCircle2 className="w-8 h-8 text-emerald-500 opacity-50" />
+                </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="border-0 shadow-sm bg-gradient-to-br from-purple-50 to-purple-100">
               <CardContent className="pt-6">
-                <div className="text-2xl font-bold text-purple-600">{stats.completed}</div>
-                <p className="text-sm text-muted-foreground">Tamamlanan</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-3xl font-bold text-purple-700">{stats.completed}</div>
+                    <p className="text-sm text-purple-600 font-medium">Tamamlanan</p>
+                  </div>
+                  <Award className="w-8 h-8 text-purple-500 opacity-50" />
+                </div>
               </CardContent>
             </Card>
-            <Card>
+            <Card className="border-0 shadow-sm bg-gradient-to-br from-red-50 to-red-100">
               <CardContent className="pt-6">
-                <div className="text-2xl font-bold text-red-600">{stats.unread_messages}</div>
-                <p className="text-sm text-muted-foreground">Okunmamis Mesaj</p>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-3xl font-bold text-red-700">{stats.unread_messages}</div>
+                    <p className="text-sm text-red-600 font-medium">Okunmamış</p>
+                  </div>
+                  <MessageSquare className="w-8 h-8 text-red-500 opacity-50" />
+                </div>
               </CardContent>
             </Card>
           </div>
@@ -1505,33 +1666,33 @@ function Dashboard() {
           {sidebarOpen && (
             <div className="fixed inset-0 z-40 lg:hidden">
               <div className="fixed inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
-              <div className="fixed left-0 top-0 bottom-0 w-64 bg-background p-4 shadow-xl">
+              <div className="fixed left-0 top-0 bottom-0 w-64 bg-white p-4 shadow-xl">
                 <div className="flex items-center justify-between mb-6">
-                  <span className="font-semibold">Menu</span>
-                  <button onClick={() => setSidebarOpen(false)}>
+                  <img src={LOGO_URL} alt="MANES Logo" className="h-8" />
+                  <button onClick={() => setSidebarOpen(false)} className="p-2 hover:bg-slate-100 rounded-lg">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
                 <nav className="space-y-2">
                   <button 
-                    className={`w-full text-left p-3 rounded-lg ${activeTab === 'requests' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                    className={`w-full text-left p-3 rounded-xl flex items-center gap-3 transition-all ${activeTab === 'requests' ? 'bg-slate-800 text-white' : 'hover:bg-slate-100'}`}
                     onClick={() => { setActiveTab('requests'); setSidebarOpen(false); }}
                   >
-                    <FileText className="w-4 h-4 inline mr-2" /> Talepler
+                    <Inbox className="w-5 h-5" /> Talepler
                   </button>
                   {!isAdmin && (
                     <button 
-                      className={`w-full text-left p-3 rounded-lg ${activeTab === 'templates' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                      className={`w-full text-left p-3 rounded-xl flex items-center gap-3 transition-all ${activeTab === 'templates' ? 'bg-slate-800 text-white' : 'hover:bg-slate-100'}`}
                       onClick={() => { setActiveTab('templates'); setSidebarOpen(false); }}
                     >
-                      <RefreshCw className="w-4 h-4 inline mr-2" /> Sablonlarim
+                      <RefreshCw className="w-5 h-5" /> Şablonlarım
                     </button>
                   )}
                   <button 
-                    className={`w-full text-left p-3 rounded-lg ${activeTab === 'profile' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                    className={`w-full text-left p-3 rounded-xl flex items-center gap-3 transition-all ${activeTab === 'profile' ? 'bg-slate-800 text-white' : 'hover:bg-slate-100'}`}
                     onClick={() => { setActiveTab('profile'); setSidebarOpen(false); }}
                   >
-                    <Settings className="w-4 h-4 inline mr-2" /> Profil
+                    <Settings className="w-5 h-5" /> Profil
                   </button>
                 </nav>
               </div>
@@ -1540,28 +1701,28 @@ function Dashboard() {
 
           {/* Sidebar - Desktop */}
           <div className="hidden lg:block w-64 shrink-0">
-            <Card>
+            <Card className="border-0 shadow-sm sticky top-24">
               <CardContent className="p-4">
                 <nav className="space-y-2">
                   <button 
-                    className={`w-full text-left p-3 rounded-lg ${activeTab === 'requests' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                    className={`w-full text-left p-3 rounded-xl flex items-center gap-3 transition-all ${activeTab === 'requests' ? 'bg-slate-800 text-white' : 'hover:bg-slate-100'}`}
                     onClick={() => setActiveTab('requests')}
                   >
-                    <FileText className="w-4 h-4 inline mr-2" /> Talepler
+                    <Inbox className="w-5 h-5" /> Talepler
                   </button>
                   {!isAdmin && (
                     <button 
-                      className={`w-full text-left p-3 rounded-lg ${activeTab === 'templates' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                      className={`w-full text-left p-3 rounded-xl flex items-center gap-3 transition-all ${activeTab === 'templates' ? 'bg-slate-800 text-white' : 'hover:bg-slate-100'}`}
                       onClick={() => setActiveTab('templates')}
                     >
-                      <RefreshCw className="w-4 h-4 inline mr-2" /> Sablonlarim
+                      <RefreshCw className="w-5 h-5" /> Şablonlarım
                     </button>
                   )}
                   <button 
-                    className={`w-full text-left p-3 rounded-lg ${activeTab === 'profile' ? 'bg-primary text-primary-foreground' : 'hover:bg-muted'}`}
+                    className={`w-full text-left p-3 rounded-xl flex items-center gap-3 transition-all ${activeTab === 'profile' ? 'bg-slate-800 text-white' : 'hover:bg-slate-100'}`}
                     onClick={() => setActiveTab('profile')}
                   >
-                    <Settings className="w-4 h-4 inline mr-2" /> Profil
+                    <Settings className="w-5 h-5" /> Profil
                   </button>
                 </nav>
               </CardContent>
@@ -1572,77 +1733,84 @@ function Dashboard() {
           <div className="flex-1 min-w-0">
             {activeTab === 'requests' && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-bold">{isAdmin ? 'Tum Talepler' : 'Taleplerim'}</h2>
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                  <h2 className="text-2xl font-bold text-slate-800">{isAdmin ? 'Tüm Talepler' : 'Taleplerim'}</h2>
                   {!isAdmin && (
-                    <Button onClick={() => setShowWizard(true)}>
+                    <Button onClick={() => setShowWizard(true)} className="bg-slate-800 hover:bg-slate-700 h-11">
                       <Plus className="w-4 h-4 mr-2" /> Yeni Teklif Al
                     </Button>
                   )}
                 </div>
 
-                <Tabs defaultValue="all">
-                  <TabsList>
-                    <TabsTrigger value="all">Tumu ({requests.length})</TabsTrigger>
-                    <TabsTrigger value="pending">Bekleyen ({filteredRequests('pending').length})</TabsTrigger>
-                    <TabsTrigger value="quoted">Teklif Geldi ({filteredRequests('quoted').length})</TabsTrigger>
-                    <TabsTrigger value="approved">Onaylanan ({filteredRequests('approved').length})</TabsTrigger>
+                <Tabs defaultValue="all" className="w-full">
+                  <TabsList className="bg-white border shadow-sm p-1 h-auto flex-wrap">
+                    <TabsTrigger value="all" className="data-[state=active]:bg-slate-800 data-[state=active]:text-white">Tümü ({requests.length})</TabsTrigger>
+                    <TabsTrigger value="pending" className="data-[state=active]:bg-amber-500 data-[state=active]:text-white">Bekleyen ({filteredRequests('pending').length})</TabsTrigger>
+                    <TabsTrigger value="quoted" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">Teklif Geldi ({filteredRequests('quoted').length})</TabsTrigger>
+                    <TabsTrigger value="approved" className="data-[state=active]:bg-emerald-500 data-[state=active]:text-white">Onaylanan ({filteredRequests('approved').length})</TabsTrigger>
                   </TabsList>
 
                   {['all', 'pending', 'quoted', 'approved', 'completed'].map((tab) => (
-                    <TabsContent key={tab} value={tab}>
+                    <TabsContent key={tab} value={tab} className="mt-4">
                       {loading ? (
                         <div className="flex items-center justify-center py-12">
-                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-800"></div>
                         </div>
                       ) : (
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                           {(tab === 'all' ? requests : filteredRequests(tab)).length === 0 ? (
-                            <Card>
+                            <Card className="border-0 shadow-sm">
                               <CardContent className="py-12 text-center">
-                                <Package className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                                <p className="text-muted-foreground">Henuz talep yok</p>
+                                <Package className="w-16 h-16 mx-auto text-slate-300 mb-4" />
+                                <p className="text-slate-500 text-lg">Henüz talep yok</p>
                                 {!isAdmin && (
-                                  <Button className="mt-4" onClick={() => setShowWizard(true)}>
-                                    <Plus className="w-4 h-4 mr-2" /> Ilk Talebinizi Olusturun
+                                  <Button className="mt-4 bg-slate-800 hover:bg-slate-700" onClick={() => setShowWizard(true)}>
+                                    <Plus className="w-4 h-4 mr-2" /> İlk Talebinizi Oluşturun
                                   </Button>
                                 )}
                               </CardContent>
                             </Card>
                           ) : (
                             (tab === 'all' ? requests : filteredRequests(tab)).map((req) => (
-                              <Card key={req.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedRequest(req.id)}>
+                              <Card 
+                                key={req.id} 
+                                className="border-0 shadow-sm hover:shadow-md transition-all cursor-pointer group" 
+                                onClick={() => setSelectedRequest(req.id)}
+                              >
                                 <CardContent className="p-4">
                                   <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-4">
-                                      <div>
-                                        <div className="flex items-center gap-2">
-                                          <span className="font-semibold">{req.request_number}</span>
-                                          <Badge className={STATUS_COLORS[req.status]}>
-                                            {STATUS_LABELS[req.status]}
+                                    <div className="flex-1">
+                                      <div className="flex items-center gap-3 flex-wrap">
+                                        <span className="font-bold text-slate-800">{req.request_number}</span>
+                                        <Badge className={`${STATUS_COLORS[req.status]} text-white`}>
+                                          {STATUS_LABELS[req.status]}
+                                        </Badge>
+                                        {req.unread_messages > 0 && (
+                                          <Badge className="bg-red-500 text-white">
+                                            <MessageSquare className="w-3 h-3 mr-1" />
+                                            {req.unread_messages}
                                           </Badge>
-                                          {req.unread_messages > 0 && (
-                                            <Badge variant="destructive">
-                                              <MessageSquare className="w-3 h-3 mr-1" />
-                                              {req.unread_messages}
-                                            </Badge>
-                                          )}
-                                        </div>
-                                        <p className="text-sm text-muted-foreground mt-1">
-                                          {CATEGORIES[req.category]?.name} | {req.total_items} Parca
-                                        </p>
-                                        {isAdmin && (
-                                          <p className="text-sm text-muted-foreground">
-                                            {req.company_name} - {req.full_name}
-                                          </p>
                                         )}
                                       </div>
+                                      <p className="text-sm text-slate-500 mt-2">
+                                        {CATEGORIES[req.category]?.icon} {CATEGORIES[req.category]?.name} • {req.total_items} Parça
+                                      </p>
+                                      {isAdmin && (
+                                        <p className="text-sm text-slate-600 mt-1 font-medium">
+                                          🏢 {req.company_name} - {req.full_name}
+                                        </p>
+                                      )}
+                                      {req.requested_delivery_date && (
+                                        <p className="text-sm text-amber-600 mt-1">
+                                          📅 İstenen Termin: {new Date(req.requested_delivery_date).toLocaleDateString('tr-TR')}
+                                        </p>
+                                      )}
                                     </div>
                                     <div className="text-right">
-                                      <p className="text-sm text-muted-foreground">
+                                      <p className="text-sm text-slate-400">
                                         {new Date(req.created_at).toLocaleDateString('tr-TR')}
                                       </p>
-                                      <Button variant="ghost" size="sm">
+                                      <Button variant="ghost" size="sm" className="mt-2 group-hover:bg-slate-100">
                                         <Eye className="w-4 h-4 mr-1" /> Detay
                                       </Button>
                                     </div>
@@ -1661,36 +1829,36 @@ function Dashboard() {
 
             {activeTab === 'templates' && !isAdmin && (
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold">Kayitli Sablonlarim</h2>
+                <h2 className="text-2xl font-bold text-slate-800">Kayıtlı Şablonlarım</h2>
                 {templates.length === 0 ? (
-                  <Card>
+                  <Card className="border-0 shadow-sm">
                     <CardContent className="py-12 text-center">
-                      <RefreshCw className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                      <p className="text-muted-foreground">Henuz kayitli sablon yok</p>
-                      <p className="text-sm text-muted-foreground mt-2">
-                        Teklif talebi olustururken "Sablon olarak kaydet" secenegini isaretleyin.
+                      <RefreshCw className="w-16 h-16 mx-auto text-slate-300 mb-4" />
+                      <p className="text-slate-500 text-lg">Henüz kayıtlı şablon yok</p>
+                      <p className="text-sm text-slate-400 mt-2">
+                        Teklif talebi oluştururken "Şablon olarak kaydet" seçeneğini işaretleyin.
                       </p>
                     </CardContent>
                   </Card>
                 ) : (
                   <div className="grid gap-4 md:grid-cols-2">
                     {templates.map((template) => (
-                      <Card key={template.id}>
+                      <Card key={template.id} className="border-0 shadow-sm hover:shadow-md transition-all">
                         <CardHeader>
                           <CardTitle className="text-base">{template.template_name}</CardTitle>
-                          <CardDescription>
-                            {CATEGORIES[template.category]?.name}
+                          <CardDescription className="flex items-center gap-2">
+                            {CATEGORIES[template.category]?.icon} {CATEGORIES[template.category]?.name}
                           </CardDescription>
                         </CardHeader>
                         <CardContent>
-                          <div className="text-sm text-muted-foreground mb-4">
-                            {JSON.parse(template.items).length} parca
+                          <div className="text-sm text-slate-500 mb-4">
+                            {JSON.parse(template.items).length} parça
                           </div>
                           <Button 
-                            className="w-full" 
+                            className="w-full bg-slate-800 hover:bg-slate-700" 
                             onClick={() => { setSelectedTemplate(template); setShowWizard(true); }}
                           >
-                            <RefreshCw className="w-4 h-4 mr-2" /> Bu Sablonu Kullan
+                            <RefreshCw className="w-4 h-4 mr-2" /> Bu Şablonu Kullan
                           </Button>
                         </CardContent>
                       </Card>
@@ -1745,7 +1913,7 @@ function ProfileSection({ user }) {
     try {
       await api('/auth/profile', { method: 'PUT', body: formData });
       updateUser({ ...user, ...formData });
-      toast.success('Profil guncellendi');
+      toast.success('Profil güncellendi');
     } catch (error) {
       toast.error(error.message);
     } finally {
@@ -1755,62 +1923,71 @@ function ProfileSection({ user }) {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold">Profil Ayarlari</h2>
-      <Card>
+      <h2 className="text-2xl font-bold text-slate-800">Profil Ayarları</h2>
+      <Card className="border-0 shadow-sm">
         <CardHeader>
-          <CardTitle>Kisisel Bilgiler</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <User className="w-5 h-5" /> Kişisel Bilgiler
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label>Ad Soyad</Label>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Ad Soyad</Label>
               <Input
                 value={formData.full_name}
                 onChange={(e) => setFormData({...formData, full_name: e.target.value})}
+                className="h-11"
               />
             </div>
-            <div>
-              <Label>Sirket Unvani</Label>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Şirket Ünvanı</Label>
               <Input
                 value={formData.company_name}
                 onChange={(e) => setFormData({...formData, company_name: e.target.value})}
+                className="h-11"
               />
             </div>
-            <div>
-              <Label>Vergi Dairesi</Label>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Vergi Dairesi</Label>
               <Input
                 value={formData.tax_office}
                 onChange={(e) => setFormData({...formData, tax_office: e.target.value})}
+                className="h-11"
               />
             </div>
-            <div>
-              <Label>Vergi No / TCKN</Label>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Vergi No / TCKN</Label>
               <Input
                 value={formData.tax_number}
                 onChange={(e) => setFormData({...formData, tax_number: e.target.value})}
+                className="h-11"
               />
             </div>
-            <div>
-              <Label>Telefon</Label>
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Telefon</Label>
               <Input
                 value={formData.phone}
                 onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                className="h-11"
               />
             </div>
-            <div>
-              <Label>Email</Label>
-              <Input value={user?.email} disabled />
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Email</Label>
+              <Input value={user?.email} disabled className="h-11 bg-slate-50" />
             </div>
           </div>
-          <div>
-            <Label>Adres</Label>
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Adres</Label>
             <Textarea
               value={formData.address}
               onChange={(e) => setFormData({...formData, address: e.target.value})}
+              className="resize-none"
+              rows={2}
             />
           </div>
-          <Button onClick={handleSave} disabled={saving}>
-            {saving ? 'Kaydediliyor...' : 'Kaydet'}
+          <Button onClick={handleSave} disabled={saving} className="bg-slate-800 hover:bg-slate-700 h-11">
+            {saving ? 'Kaydediliyor...' : 'Değişiklikleri Kaydet'}
           </Button>
         </CardContent>
       </Card>
@@ -1824,8 +2001,11 @@ export default function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex items-center justify-center bg-slate-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-slate-800 mx-auto"></div>
+          <p className="mt-4 text-slate-600">Yükleniyor...</p>
+        </div>
       </div>
     );
   }
