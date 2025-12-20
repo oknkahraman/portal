@@ -1190,10 +1190,205 @@ function RequestDetail({ requestId, onClose, onUpdate }) {
     );
   }
 
-  const { request, items, quote, messages } = data;
+  const { request, items, quote, messages, quality_documents } = data;
   const isAdmin = user?.role === 'admin';
   const canQuote = isAdmin && request.status === 'pending';
   const canRespond = !isAdmin && quote && quote.status === 'sent';
+  const isApproved = request.status === 'approved' || request.status === 'completed';
+
+  // Sipariş aşaması güncelleme (Admin)
+  const updateOrderStage = async (stage) => {
+    try {
+      await api(`/requests/${requestId}/stage`, {
+        method: 'PUT',
+        body: { stage },
+      });
+      toast.success('Sipariş aşaması güncellendi');
+      loadData();
+      onUpdate();
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  // Kalite kontrol evrakı yükleme (Admin)
+  const uploadQualityDoc = async (file, itemId = null) => {
+    if (!file) return;
+    
+    if (!file.name.toLowerCase().endsWith('.pdf')) {
+      toast.error('Sadece PDF dosyaları yüklenebilir');
+      return;
+    }
+
+    const formDataUpload = new FormData();
+    formDataUpload.append('file', file);
+    formDataUpload.append('request_id', requestId);
+    if (itemId) {
+      formDataUpload.append('request_item_id', itemId);
+    }
+
+    try {
+      await api('/quality-documents', { method: 'POST', body: formDataUpload });
+      toast.success('Kalite kontrol evrakı yüklendi');
+      loadData();
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  // Kalite kontrol evrakı silme (Admin)
+  const deleteQualityDoc = async (docId) => {
+    if (!confirm('Bu evrakı silmek istediğinizden emin misiniz?')) return;
+    try {
+      await api(`/quality-documents/${docId}`, { method: 'DELETE' });
+      toast.success('Evrak silindi');
+      loadData();
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  // Sipariş Takip Komponenti
+  const OrderTracker = () => {
+    const currentStageIndex = ORDER_STAGE_LIST.indexOf(request.order_stage);
+    
+    return (
+      <Card className="border-2 border-indigo-200 bg-gradient-to-r from-indigo-50 to-purple-50">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base flex items-center gap-2 text-indigo-800">
+            <Package className="w-5 h-5" /> Sipariş Durumu Takibi
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col md:flex-row gap-2 md:gap-0 justify-between items-start md:items-center">
+            {ORDER_STAGE_LIST.map((stage, index) => {
+              const stageInfo = ORDER_STAGES[stage];
+              const StageIcon = stageInfo.icon;
+              const isActive = request.order_stage === stage;
+              const isCompleted = currentStageIndex > index || (currentStageIndex === index && stage === 'teslim_edildi');
+              const isPending = currentStageIndex < index;
+              
+              return (
+                <div key={stage} className="flex items-center w-full md:w-auto">
+                  <div className={`flex flex-col items-center ${isAdmin ? 'cursor-pointer hover:opacity-80' : ''}`}
+                    onClick={() => isAdmin && isApproved && updateOrderStage(stage)}
+                  >
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all
+                      ${isActive ? `${stageInfo.bgColor} ${stageInfo.borderColor} ${stageInfo.color} ring-4 ring-offset-2 ring-${stageInfo.color.replace('text-', '')}` : ''}
+                      ${isCompleted && !isActive ? 'bg-emerald-100 border-emerald-400 text-emerald-600' : ''}
+                      ${isPending ? 'bg-slate-100 border-slate-300 text-slate-400' : ''}
+                    `}>
+                      {isCompleted && !isActive ? (
+                        <CheckCircle2 className="w-6 h-6" />
+                      ) : (
+                        <StageIcon className="w-6 h-6" />
+                      )}
+                    </div>
+                    <span className={`text-xs mt-2 text-center font-medium max-w-[80px]
+                      ${isActive ? stageInfo.color : ''}
+                      ${isCompleted && !isActive ? 'text-emerald-600' : ''}
+                      ${isPending ? 'text-slate-400' : ''}
+                    `}>
+                      {stageInfo.label}
+                    </span>
+                  </div>
+                  {index < ORDER_STAGE_LIST.length - 1 && (
+                    <div className={`hidden md:block flex-1 h-1 mx-2 rounded ${
+                      currentStageIndex > index ? 'bg-emerald-400' : 'bg-slate-200'
+                    }`} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          
+          {isAdmin && isApproved && (
+            <div className="mt-4 pt-4 border-t border-indigo-200">
+              <Label className="text-sm font-medium text-indigo-800">Aşama Değiştir:</Label>
+              <Select value={request.order_stage || ''} onValueChange={updateOrderStage}>
+                <SelectTrigger className="mt-2 h-11">
+                  <SelectValue placeholder="Aşama seçin" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ORDER_STAGE_LIST.map((stage) => (
+                    <SelectItem key={stage} value={stage}>
+                      {ORDER_STAGES[stage].label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    );
+  };
+
+  // Kalite Kontrol Evrakları Komponenti
+  const QualityDocuments = ({ itemId = null, documents = [] }) => {
+    const docs = itemId 
+      ? items.find(i => i.id === itemId)?.quality_documents || []
+      : quality_documents || [];
+
+    return (
+      <div className="space-y-3">
+        {docs.length > 0 && (
+          <div className="space-y-2">
+            {docs.map((doc) => (
+              <div key={doc.id} className="flex items-center justify-between p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+                <div className="flex items-center gap-3">
+                  <FileCheck className="w-5 h-5 text-emerald-600" />
+                  <div>
+                    <p className="font-medium text-emerald-800 text-sm">{doc.file_name}</p>
+                    <p className="text-xs text-emerald-600">Yükleyen: {doc.uploaded_by_name}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <a 
+                    href={doc.file_url} 
+                    target="_blank" 
+                    download
+                    className="p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                  >
+                    <Download className="w-4 h-4" />
+                  </a>
+                  {isAdmin && (
+                    <button 
+                      onClick={() => deleteQualityDoc(doc.id)}
+                      className="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        
+        {isAdmin && (request.status === 'approved' || request.status === 'completed') && (
+          <div className="border-2 border-dashed border-emerald-300 rounded-lg p-4 text-center hover:border-emerald-400 transition-colors bg-emerald-50/50">
+            <input
+              type="file"
+              onChange={(e) => uploadQualityDoc(e.target.files[0], itemId)}
+              className="hidden"
+              id={`qc-file-${itemId || 'general'}`}
+              accept=".pdf"
+            />
+            <label htmlFor={`qc-file-${itemId || 'general'}`} className="cursor-pointer">
+              <Upload className="w-8 h-8 mx-auto text-emerald-500" />
+              <p className="text-sm font-medium text-emerald-700 mt-2">Kalite Kontrol Evrakı Yükle</p>
+              <p className="text-xs text-emerald-500">Sadece PDF (max 50MB)</p>
+            </label>
+          </div>
+        )}
+        
+        {docs.length === 0 && !isAdmin && (
+          <p className="text-sm text-slate-500 text-center py-4">Henüz kalite kontrol evrakı yüklenmemiş</p>
+        )}
+      </div>
+    );
+  };
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
@@ -1210,6 +1405,9 @@ function RequestDetail({ requestId, onClose, onUpdate }) {
 
         <ScrollArea className="flex-1 pr-4">
           <div className="space-y-4 pb-4">
+            {/* SİPARİŞ TAKİP - Onaylanmış siparişler için */}
+            {isApproved && <OrderTracker />}
+
             {/* Müşteri Bilgileri (Admin için) */}
             {isAdmin && (
               <Card className="border-slate-200">
