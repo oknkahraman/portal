@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS requests (
   project_description TEXT,
   delivery_to_address BOOLEAN DEFAULT false,
   delivery_address TEXT,
+  requested_delivery_date DATE,
   files_cleaned BOOLEAN DEFAULT false,
   last_activity_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
