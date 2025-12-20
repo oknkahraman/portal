@@ -1589,8 +1589,38 @@ function RequestDetail({ requestId, onClose, onUpdate }) {
                           </div>
                         </div>
                       </div>
+
+                      {/* Kalite Kontrol Evrakları - Parça Özelinde */}
+                      {isApproved && (
+                        <div className="border-t pt-3">
+                          <button 
+                            className="text-sm text-emerald-600 hover:text-emerald-800 flex items-center gap-1 font-medium"
+                            onClick={() => document.getElementById(`qc-docs-${item.id}`).classList.toggle('hidden')}
+                          >
+                            <FileCheck className="w-4 h-4" />
+                            Kalite Kontrol Evrakları ({item.quality_documents?.length || 0})
+                          </button>
+                          <div id={`qc-docs-${item.id}`} className="hidden mt-3">
+                            <QualityDocuments itemId={item.id} />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Genel Kalite Kontrol Evrakları - Sipariş Bazında */}
+            {isApproved && (
+              <Card className="border-emerald-200 bg-emerald-50/30">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base flex items-center gap-2 text-emerald-800">
+                    <ClipboardCheck className="w-5 h-5" /> Genel Kalite Kontrol Evrakları
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <QualityDocuments />
                 </CardContent>
               </Card>
             )}
