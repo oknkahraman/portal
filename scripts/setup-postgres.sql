@@ -54,6 +54,7 @@ CREATE TABLE IF NOT EXISTS requests (
   category TEXT NOT NULL CHECK (category IN ('talasli', 'kaynak', 'sac', '3d', 'komple', 'kaplama')),
   sub_category TEXT,
   status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'quoted', 'approved', 'rejected', 'completed', 'cancelled')),
+  order_stage TEXT CHECK (order_stage IN ('hammadde', 'imalat', 'kalite_kontrol', 'sevkiyat', 'teslim_edildi')),
   total_items INTEGER DEFAULT 0,
   project_description TEXT,
   delivery_to_address BOOLEAN DEFAULT false,
@@ -63,6 +64,18 @@ CREATE TABLE IF NOT EXISTS requests (
   last_activity_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Kalite Kontrol Evraklari
+CREATE TABLE IF NOT EXISTS quality_documents (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  request_id UUID REFERENCES requests(id) ON DELETE CASCADE,
+  request_item_id UUID REFERENCES request_items(id) ON DELETE CASCADE,
+  file_url TEXT NOT NULL,
+  file_name TEXT NOT NULL,
+  file_size BIGINT,
+  uploaded_by UUID REFERENCES profiles(id) NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Talep Parcalari
