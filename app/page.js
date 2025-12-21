@@ -13,7 +13,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { ScrollArea } from '@/components/ui/scroll-area';
+// ScrollArea iptal edildi
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { 
@@ -259,7 +259,6 @@ function AuthForm({ onSuccess }) {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
-      {/* Background Pattern */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute inset-0" style={{backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '40px 40px'}}></div>
       </div>
@@ -395,7 +394,7 @@ function AuthForm({ onSuccess }) {
   );
 }
 
-// Request Wizard Component
+// Request Wizard Component - SCROLLAREA KALDIRILDI
 function RequestWizard({ onClose, onSuccess, template }) {
   const { user } = useAuth();
   const [step, setStep] = useState(1);
@@ -409,7 +408,7 @@ function RequestWizard({ onClose, onSuccess, template }) {
     use_profile_address: true,
     save_as_template: false,
     template_name: '',
-    requested_delivery_date: '', // YENİ - İstenen termin tarihi
+    requested_delivery_date: '',
   });
   const [currentItem, setCurrentItem] = useState({
     item_name: '',
@@ -507,7 +506,7 @@ function RequestWizard({ onClose, onSuccess, template }) {
         items: formData.items,
         save_as_template: formData.save_as_template,
         template_name: formData.template_name,
-        requested_delivery_date: formData.requested_delivery_date, // YENİ
+        requested_delivery_date: formData.requested_delivery_date,
       };
 
       const data = await api('/requests', { method: 'POST', body: requestData });
@@ -808,7 +807,6 @@ function RequestWizard({ onClose, onSuccess, template }) {
         <p className="text-slate-500 mt-1">Teslimat ve termin tercihlerinizi belirtin</p>
       </div>
 
-      {/* İstenen Termin Tarihi - YENİ */}
       <div className="p-4 bg-amber-50 rounded-xl border border-amber-200">
         <div className="flex items-center gap-2 mb-3">
           <Calendar className="w-5 h-5 text-amber-600" />
@@ -993,8 +991,9 @@ function RequestWizard({ onClose, onSuccess, template }) {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
+      {/* BURADA overflow-y-auto KULLANILDI VE FLEX-COL İLE YERLEŞİM DÜZENLENDİ */}
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col overflow-hidden">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2 text-slate-800">
             <FileText className="w-5 h-5" />
             Yeni Teklif Talebi
@@ -1005,20 +1004,19 @@ function RequestWizard({ onClose, onSuccess, template }) {
         </DialogHeader>
 
         {/* Progress bar */}
-        <div className="w-full bg-slate-200 rounded-full h-2">
+        <div className="w-full bg-slate-200 rounded-full h-2 flex-shrink-0 mt-2">
           <div 
             className="bg-gradient-to-r from-slate-700 to-slate-800 h-2 rounded-full transition-all duration-300"
             style={{ width: `${(step / totalSteps) * 100}%` }}
           />
         </div>
 
-        <ScrollArea className="flex-1 pr-4">
-          <div className="py-4">
-            {renderStep()}
-          </div>
-        </ScrollArea>
+        {/* İÇERİK KISMI - ScrollArea YERİNE NORMAL DIV KULLANILDI */}
+        <div className="flex-1 overflow-y-auto py-4 px-1">
+          {renderStep()}
+        </div>
 
-        <DialogFooter className="gap-2 border-t pt-4">
+        <DialogFooter className="gap-2 border-t pt-4 flex-shrink-0">
           {step > 1 && (
             <Button variant="outline" onClick={() => setStep(step - 1)}>
               <ChevronLeft className="w-4 h-4 mr-1" /> Geri
@@ -1040,7 +1038,7 @@ function RequestWizard({ onClose, onSuccess, template }) {
   );
 }
 
-// Request Detail Component
+// Request Detail Component - SCROLLAREA KALDIRILDI
 function RequestDetail({ requestId, onClose, onUpdate }) {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -1392,8 +1390,9 @@ function RequestDetail({ requestId, onClose, onUpdate }) {
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
+      {/* BURADA overflow-y-auto KULLANILDI VE FLEX-COL İLE YERLEŞİM DÜZENLENDİ */}
+      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col overflow-hidden">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <Package className="w-5 h-5" />
             Talep #{request.request_number}
@@ -1403,7 +1402,8 @@ function RequestDetail({ requestId, onClose, onUpdate }) {
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-4">
+        {/* İÇERİK KISMI - ScrollArea YERİNE NORMAL DIV KULLANILDI */}
+        <div className="flex-1 overflow-y-auto py-4 px-1">
           <div className="space-y-4 pb-4">
             {/* SİPARİŞ TAKİP - Onaylanmış siparişler için */}
             {isApproved && <OrderTracker />}
@@ -1790,7 +1790,7 @@ function RequestDetail({ requestId, onClose, onUpdate }) {
               </CardContent>
             </Card>
           </div>
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );
@@ -2211,7 +2211,7 @@ function ProfileSection({ user }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="text-sm font-medium">Ad Soyad</Label>
-              <Input
+              <Input 
                 value={formData.full_name}
                 onChange={(e) => setFormData({...formData, full_name: e.target.value})}
                 className="h-11"
@@ -2219,7 +2219,7 @@ function ProfileSection({ user }) {
             </div>
             <div className="space-y-2">
               <Label className="text-sm font-medium">Şirket Ünvanı</Label>
-              <Input
+              <Input 
                 value={formData.company_name}
                 onChange={(e) => setFormData({...formData, company_name: e.target.value})}
                 className="h-11"
@@ -2227,7 +2227,7 @@ function ProfileSection({ user }) {
             </div>
             <div className="space-y-2">
               <Label className="text-sm font-medium">Vergi Dairesi</Label>
-              <Input
+              <Input 
                 value={formData.tax_office}
                 onChange={(e) => setFormData({...formData, tax_office: e.target.value})}
                 className="h-11"
@@ -2235,7 +2235,7 @@ function ProfileSection({ user }) {
             </div>
             <div className="space-y-2">
               <Label className="text-sm font-medium">Vergi No / TCKN</Label>
-              <Input
+              <Input 
                 value={formData.tax_number}
                 onChange={(e) => setFormData({...formData, tax_number: e.target.value})}
                 className="h-11"
@@ -2243,7 +2243,7 @@ function ProfileSection({ user }) {
             </div>
             <div className="space-y-2">
               <Label className="text-sm font-medium">Telefon</Label>
-              <Input
+              <Input 
                 value={formData.phone}
                 onChange={(e) => setFormData({...formData, phone: e.target.value})}
                 className="h-11"
@@ -2256,7 +2256,7 @@ function ProfileSection({ user }) {
           </div>
           <div className="space-y-2">
             <Label className="text-sm font-medium">Adres</Label>
-            <Textarea
+            <Textarea 
               value={formData.address}
               onChange={(e) => setFormData({...formData, address: e.target.value})}
               className="resize-none"
